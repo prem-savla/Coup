@@ -32,6 +32,10 @@ public class GameInitService {
         return room;
     }
 
+    public boolean canStart(String roomId){
+        return roomRepository.getRoom(roomId).canStart();
+    }
+
     public Game startGame(String roomId) {
 
         Room room = roomRepository.getRoom(roomId);

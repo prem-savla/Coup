@@ -50,6 +50,10 @@ public class Deck {
         shuffle();
     }
 
+    public Set<String> getOriginalCardIds(){
+        return originalCardIds;
+    }
+
     private void shuffle() {
         Collections.shuffle(cards);
     }

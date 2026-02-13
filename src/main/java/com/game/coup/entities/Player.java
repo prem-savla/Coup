@@ -10,8 +10,6 @@ public class Player {
     private int coins;
     private boolean alive;
 
-    
-
     public Player(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Player name cannot be empty.");
@@ -106,7 +104,18 @@ public class Player {
         playingCards.addAll(cards);
     }
 
-    // public void exchangeTwoCards()
+    public void exchangeCards(List<Card> cardsTaken){
+
+         if (cardsTaken == null || cardsTaken.isEmpty()) {
+            throw new IllegalArgumentException("Cards cannot be null or empty.");
+        }
+
+        if(playingCards.size()!=cardsTaken.size()){
+            throw new IllegalArgumentException("Cannot add cards while exchanging");
+        }
+        playingCards.clear();
+        playingCards.addAll(cardsTaken);
+    }
 
     public void revealCard(Card card) {
         ensureAlive();

@@ -56,8 +56,4 @@ public class Room {
         }
         this.started = true;
     }
-
-    public boolean isStarted() {
-        return started;
-    }
 }
