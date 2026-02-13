@@ -92,15 +92,21 @@ public class Player {
     // Card Handling
     // --------------------------
 
-    public void addCard(Card card) {
+    public void addCards(List<Card> cards) {
         ensureAlive();
 
-        if (card == null) {
-            throw new IllegalArgumentException("Card cannot be null.");
+        if (cards == null || cards.isEmpty()) {
+            throw new IllegalArgumentException("Cards cannot be null or empty.");
+        }
+        
+        if(playingCards.size()+cards.size()>2){
+            throw new IllegalArgumentException("Cards cannot be more than 2");
         }
 
-        playingCards.add(card);
+        playingCards.addAll(cards);
     }
+
+    // public void exchangeTwoCards()
 
     public void revealCard(Card card) {
         ensureAlive();

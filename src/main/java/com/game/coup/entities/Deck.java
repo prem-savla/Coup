@@ -6,8 +6,6 @@ import java.util.*;
 
 public class Deck {
 
-    private static final int EXCHANGE_COUNT = 2;
-
     private final List<Card> cards = new ArrayList<>();
     private final Set<String> originalCardIds = new HashSet<>();
 
@@ -28,15 +26,15 @@ public class Deck {
     }
 
     public List<Card> dealTwoCards() {
-        List<Card> dealt = new ArrayList<>(EXCHANGE_COUNT);
-        for (int i = 0; i < EXCHANGE_COUNT; i++) {
+        List<Card> dealt = new ArrayList<>(2);
+        for (int i = 0; i < 2; i++) {
             dealt.add(cards.remove(cards.size() - 1));
         }
         return dealt;
     }
 
     public void returnTwoCards(List<Card> returned) {
-        if (returned == null || returned.size() != EXCHANGE_COUNT) {
+        if (returned == null || returned.size() != 2) {
             throw new IllegalArgumentException("Exactly two cards must be returned.");
         }
         for (Card card : returned) {
