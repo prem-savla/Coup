@@ -3,9 +3,9 @@ package com.game.coup.domain;
 import java.util.List;
 import java.util.UUID;
 
-import com.game.coup.entities.Deck;
-import com.game.coup.entities.Player;
-import com.game.coup.entities.Treasury;
+import com.game.coup.domain.model.Deck;
+import com.game.coup.domain.model.Player;
+import com.game.coup.domain.model.Treasury;
 
 public class Game {
 

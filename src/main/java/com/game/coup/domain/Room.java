@@ -2,7 +2,7 @@ package com.game.coup.domain;
 
 import java.util.*;
 
-import com.game.coup.entities.Player;
+import com.game.coup.domain.model.Player;
 
 public class Room {
 

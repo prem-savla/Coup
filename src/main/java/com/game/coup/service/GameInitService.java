@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.game.coup.domain.Game;
 import com.game.coup.domain.Room;
-import com.game.coup.entities.Player;
+import com.game.coup.domain.model.Player;
 import com.game.coup.repository.GameRepository;
 import com.game.coup.repository.RoomRepository;
 

@@ -1,6 +1,6 @@
 package com.game.coup.dto;
 
-import com.game.coup.definitions.Role;
+import com.game.coup.domain.definitions.Role;
 
 import lombok.*;
 

@@ -1,4 +1,4 @@
-package com.game.coup.definitions;
+package com.game.coup.domain.definitions;
 
 import java.util.Set;
 
