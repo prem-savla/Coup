@@ -1,4 +1,4 @@
-package com.game.coup.entities;
+package com.game.coup.domain.model;
 
 import java.util.*;
 

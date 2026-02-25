@@ -1,4 +1,4 @@
-package com.game.coup.definitions;
+package com.game.coup.domain.definitions;
 
 public enum ActionType {
     INCOME(false, false,false,0,1),

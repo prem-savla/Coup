@@ -1,8 +1,8 @@
 package com.game.coup.domain.flow;
 
-import com.game.coup.definitions.ActionType;
-import com.game.coup.entities.Player;
-import com.game.coup.entities.Treasury;
+import com.game.coup.domain.definitions.ActionType;
+import com.game.coup.domain.model.Player;
+import com.game.coup.domain.model.Treasury;
 
 public class Resolver {
     private ActionType action;
@@ -24,7 +24,8 @@ public class Resolver {
         Player blocker,
         Player challengeBlocker,
         boolean challengerWon,
-        boolean blockerWon
+        boolean blockerWon,
+        Treasury treasury
     ) {
         this.action = action;
         this.actor = actor;
@@ -35,7 +36,7 @@ public class Resolver {
         this.challengerWon = challengerWon;
         this.blockerWon = blockerWon;
         
-        treasury  = null;
+        this.treasury  = null;
     }
 
     public void perform(){
@@ -79,7 +80,6 @@ public class Resolver {
                 break;
             case ActionType.EXCHANGE:
                 // Func.exchangeAction(actor);
-                
                 break;
             case ActionType.STEAL:
                 int steal = Math.min(target.getCoins(), ActionType.STEAL.gain);
@@ -92,7 +92,7 @@ public class Resolver {
                 break;
             case ActionType.COUP:
                 // Func.forceReveal(target);
-                 treasury.takeCoins(actor, ActionType.COUP.cost);
+                treasury.takeCoins(actor, ActionType.COUP.cost);
                 break;
             default:
                 break;

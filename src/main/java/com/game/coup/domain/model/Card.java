@@ -1,8 +1,8 @@
-package com.game.coup.entities;
-
-import com.game.coup.definitions.Role;
+package com.game.coup.domain.model;
 
 import java.util.*;
+
+import com.game.coup.domain.definitions.Role;
 
 public class Card {
 
