@@ -1,7 +1,6 @@
 package com.game.coup.domain;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
@@ -17,8 +16,8 @@ public class Game {
 
     private int currentTurnIndex;
 
-    public Game(List<Player> players) {
-        this.roomId = UUID.randomUUID().toString();
+    public Game(List<Player> players, String roomId) {
+        this.roomId = roomId;
         this.players = players;
 
         this.deck = new Deck();
@@ -39,25 +38,25 @@ public class Game {
         return roomId;
     }
 
+    public void nextTurn() {
+        currentTurnIndex =
+        (currentTurnIndex + 1) % players.size();
+    }
+    
+    public Treasury getTreasury() {
+        return treasury;
+    }
+    
+    public Deck getDeck() {
+        return deck;
+    }
+
     public List<Player> getPlayers() {
         return players;
     }
 
     public Player getCurrentPlayer() {
         return players.get(currentTurnIndex);
-    }
-
-    public void nextTurn() {
-        currentTurnIndex =
-                (currentTurnIndex + 1) % players.size();
-    }
-
-    public Treasury getTreasury() {
-        return treasury;
-    }
-
-    public Deck getDeck() {
-        return deck;
     }
 
     public List<Player> getAlivePlayers() {

@@ -1,6 +1,7 @@
 package com.game.coup.domain.flow;
 
 import com.game.coup.domain.definitions.ActionType;
+import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
 import com.game.coup.domain.model.Treasury;
 
@@ -15,7 +16,8 @@ public class Resolver {
     private boolean challengerWon;
     private boolean blockerWon;
 
-    Treasury treasury;
+    private Treasury treasury;
+    private Deck deck;
 
     public Resolver(ActionType action, 
         Player actor, 
@@ -25,7 +27,8 @@ public class Resolver {
         Player challengeBlocker,
         boolean challengerWon,
         boolean blockerWon,
-        Treasury treasury
+        Treasury treasury,
+        Deck deck
     ) {
         this.action = action;
         this.actor = actor;
@@ -36,7 +39,8 @@ public class Resolver {
         this.challengerWon = challengerWon;
         this.blockerWon = blockerWon;
         
-        this.treasury  = null;
+        this.treasury  = treasury;
+        this.deck = deck;
     }
 
     public void perform(){

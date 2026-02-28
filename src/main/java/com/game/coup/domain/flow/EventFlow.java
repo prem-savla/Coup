@@ -5,6 +5,7 @@ import java.util.*;
 import com.game.coup.domain.definitions.ActionType;
 import com.game.coup.domain.definitions.FlowState;
 import com.game.coup.domain.model.Card;
+import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
 import com.game.coup.domain.model.Treasury;
 
@@ -29,64 +30,51 @@ public class EventFlow {
 
     private EventState currentState;
 
+    private EventState initState;
     private EventState challengeState;
     private EventState blockState;
     private EventState challengeBlockState;
     private EventState resolveState;
     private EventState deadState;
 
-    protected Treasury treasury;
+    private Treasury treasury;
+    private Deck deck;
 
-    public EventFlow(ActionType action, Player actor, Player target, Treasury treasury) {
+    public EventFlow(ActionType action, Player actor, Player target, Treasury treasury, Deck deck) {
 
         new SanityChecker(action, actor, target, treasury).validate();
         
         this.action = action;
         this.actor = actor;
         this.target = target;
+        this.challenger = Player.NONE;
         this.blocker = Player.NONE;
         this.challengeBlocker = Player.NONE;
+        
+        this.treasury = treasury;
+        this.deck = deck;
 
+        // defaults for boolean 
+        challengerWon = false;
+        blockerWon = false;
+
+        this.initState = new initState();
         this.challengeState = new ChallengeState();
         this.blockState = new BlockState();
         this.challengeBlockState = new ChallengeBlockState();
         this.resolveState = new ResolveState();
         this.deadState = new DeadState();
 
-        currentState = getDeadState();
-        // defaults for boolean 
-        challengerWon = false;
-        blockerWon = false;
-
-        this.treasury = treasury;
-    }
-
-    public List<FlowState> getInitState() { 
-        List<FlowState> initState = new ArrayList<>();
-        initState.add(FlowState.RESOLVE);
-        if(action.challengeable)initState.add(FlowState.CHALLENGE);
-        if(action.blockable)initState.add(FlowState.BLOCK);
-        return initState;
-    }
-
-    private void start(FlowState flowState) {
-        if (flowState == FlowState.CHALLENGE && action.challengeable) {
-            currentState = challengeState;
-        } else if (flowState == FlowState.BLOCK && action.blockable) {
-            currentState = blockState;
-        } else if (flowState == FlowState.RESOLVE) {
-            currentState = resolveState;
-        } else {
-            throw new IllegalStateException("Invalid starting flowState: " + flowState);
-        }
+        currentState = initState;
     }
 
     // FSM entry
-    public void perform(FlowState flowState, Player player){
-        if(currentState.equals(deadState)) start(flowState);
-
+    public void performAction(FlowState flowState, Player player){
         if(flowState == FlowState.RESOLVE && !player.isNone()) 
             throw new IllegalArgumentException("No player required for resolve");
+
+        if(!getState().contains(flowState))
+            throw new IllegalArgumentException("Invlaid state");
 
         switch (flowState) {
 
@@ -99,7 +87,7 @@ public class EventFlow {
             case RESOLVE -> resolve();
 
             default -> throw new IllegalStateException(
-                    "Unsupported flowState transition: " + flowState
+                    "Unsupported state transition: " + flowState
             );
         }
     }
@@ -153,6 +141,36 @@ public class EventFlow {
     public Player getChallengeBlocker() { return challengeBlocker; }
     public void setChallengeBlocker(Player challengeBlocker) { this.challengeBlocker = challengeBlocker; }
 
+    public Treasury getTreasury(){ return treasury; }
+    public Deck getDeck(){ return deck; }
+
+}
+
+class initState extends AbstractEventState{
+
+    @Override
+    public EventState challenge(EventFlow event, Player challenger) {
+        return event.getChallengeState().challenge(event, challenger);
+    }
+
+    @Override
+    public EventState block(EventFlow event, Player blocker) {
+        return event.getBlockState().block(event, blocker);
+    }
+
+    @Override
+    public EventState resolve(EventFlow event) {
+        return event.getResolveState().resolve(event);
+    }
+
+    @Override
+    public List<FlowState> getState(EventFlow event) { 
+        List<FlowState> state = new ArrayList<>();
+        state.add(FlowState.RESOLVE);
+        if(event.getAction().challengeable)state.add(FlowState.CHALLENGE);
+        if(event.getAction().blockable)state.add(FlowState.BLOCK);
+        return state;
+    }
 }
 
 class ChallengeState extends AbstractEventState {
@@ -160,6 +178,7 @@ class ChallengeState extends AbstractEventState {
     @Override
     public EventState challenge(EventFlow event, Player challenger) {
         if(challenger.isNone()) throw new IllegalArgumentException("requires challenger");
+        if(!event.getAction().challengeable) throw new IllegalStateException(" action canot be challenged");
         event.setChallenger(challenger);
         for(Card card :event.getActor().getPlayingCards() ){
             if(card.getType().canPerform(event.getAction())){
@@ -183,6 +202,7 @@ class BlockState extends AbstractEventState {
     @Override
     public EventState block(EventFlow event, Player blocker) {
         if(blocker.isNone()) throw new IllegalArgumentException("requires Blocker");
+        if(!event.getAction().blockable) throw new IllegalStateException(" action canot be blocked");
         event.setBlocker(blocker);
         event.setBlockerWon(true);
         return event.getChallengeBlockState();
@@ -195,7 +215,10 @@ class BlockState extends AbstractEventState {
 
     @Override
     public List<FlowState> getState(EventFlow event){
-        return new ArrayList<FlowState>(List.of(FlowState.BLOCK, FlowState.RESOLVE));
+        List<FlowState> state = new ArrayList<>();
+        state.add(FlowState.RESOLVE);
+        if(event.getAction().blockable)state.add(FlowState.BLOCK);
+        return state;
     }
 }
 
@@ -243,7 +266,8 @@ class ResolveState extends AbstractEventState {
         event.getChallengeBlocker(),
         event.isChallengerWon(),
         event.isBlockerWon(),
-        event.treasury )
+        event.getTreasury(),
+        event.getDeck())
         .perform();
     }; 
 }
