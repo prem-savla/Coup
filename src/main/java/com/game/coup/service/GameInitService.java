@@ -43,7 +43,7 @@ public class GameInitService {
 
         List<Player> players = room.getPlayers();
 
-        Game game = new Game(players);
+        Game game = new Game(players,room.getRoomId());
 
         gameRepository.save(game);
 
