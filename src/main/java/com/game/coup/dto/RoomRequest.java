@@ -11,7 +11,8 @@ public class RoomRequest {
 
     public enum Action {
         CREATE,
-        JOIN
+        JOIN,
+        START
     }
 
     private Action action;

@@ -44,7 +44,6 @@ public class RoomController {
             }
 
             case JOIN -> {
-
                 if (request.getRoomId() == null || request.getRoomId().isBlank()) {
                     return ResponseEntity.badRequest()
                             .body("roomId is required for JOIN action.");
@@ -59,6 +58,25 @@ public class RoomController {
                         Map.of(
                                 "roomId", request.getRoomId(),
                                 "message", "Joined room successfully."
+                        )
+                );
+            }
+
+            case START -> {
+                if (request.getRoomId() == null || request.getRoomId().isBlank()) {
+                    return ResponseEntity.badRequest()
+                            .body("roomId is required for JOIN action.");
+                }
+
+                roomService.startGame(
+                        request.getRoomId(),
+                        request.getPlayerName()
+                );
+
+                return ResponseEntity.ok(
+                        Map.of(
+                                "roomId", request.getRoomId(),
+                                "message", "Game Started."
                         )
                 );
             }

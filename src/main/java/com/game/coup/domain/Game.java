@@ -5,20 +5,21 @@ import java.util.List;
 import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
 import com.game.coup.domain.model.Treasury;
+import com.game.coup.domain.definitions.ActionType;
+import com.game.coup.domain.definitions.FlowState;
+import com.game.coup.domain.flow.EventFlow;
 
 public class Game {
-
-    private final String roomId;
-
     private final List<Player> players;
     private final Deck deck;
     private final Treasury treasury;
 
+    private EventFlow event;
+
     private int currentTurnIndex;
 
-    public Game(List<Player> players, String roomId) {
-        this.roomId = roomId;
-        this.players = players;
+    public Game(List<Player> players){
+        this.players = List.copyOf(players);
 
         this.deck = new Deck();
         this.treasury = new Treasury();
@@ -34,25 +35,12 @@ public class Game {
         }
     }
 
-    public String getRoomId() {
-        return roomId;
-    }
-
+//----------- player & turn mgm ---------------------
     public void nextTurn() {
-        currentTurnIndex =
-        (currentTurnIndex + 1) % players.size();
-    }
-    
-    public Treasury getTreasury() {
-        return treasury;
-    }
-    
-    public Deck getDeck() {
-        return deck;
-    }
-
-    public List<Player> getPlayers() {
-        return players;
+        do {
+            currentTurnIndex = (currentTurnIndex + 1) % players.size();
+        } while (!players.get(currentTurnIndex).isAlive());
+        event = null;
     }
 
     public Player getCurrentPlayer() {
@@ -65,6 +53,33 @@ public class Game {
                 .toList();
     }
 
+// ------------- actions & counters ------------------
+    public void performAction(ActionType action ){
+        event = new EventFlow(action, getCurrentPlayer(), Player.NONE,treasury, deck);
+    }
+
+    public void performTargetedAction(ActionType action, String targetName ){
+        Player target = getPlayerByName(targetName);
+        event = new EventFlow(action, getCurrentPlayer(), target,treasury, deck);
+    }
+
+    public void performCounters(FlowState state, String pName) {
+        if(event == null) throw new IllegalStateException("Need to start an action first");
+        Player p = getPlayerByName(pName);
+        event.performAction(state,p);
+    }
+
+    public void performResolve(FlowState state) {
+        if(event == null) throw new IllegalStateException("Need to start an action first");
+        event.performAction(state,Player.NONE);
+    }
+
+    public List<FlowState> getOptions(){
+        if(event == null) throw new IllegalStateException("Need to start an action first");
+        return event.getState();
+    }
+
+// ------------- utils -----------------------------
     public Player getPlayerByName(String name) {
         return players.stream()
                 .filter(p -> p.getName().equals(name))
@@ -73,3 +88,5 @@ public class Game {
                     new IllegalArgumentException("Player not found: " + name));
     }
 }
+
+//turn state
