@@ -1,6 +1,6 @@
 package com.game.coup.repository;
 
-import java.util.UUID;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Repository;
@@ -12,10 +12,16 @@ public class RoomRepository {
 
     private final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
-    public Room createRoom() {
-        String roomId = UUID.randomUUID().toString();
-        Room room = new Room(roomId);
-        rooms.put(roomId, room);
+    private final Random random = new Random();
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public Room createRoom(String owner) {
+        // String roomId = generateRoomId();
+        String roomId = "ABCD";
+        Room room = new Room(roomId, owner);
+        if (rooms.putIfAbsent(roomId, room) != null) {
+            throw new IllegalStateException("Room already exists: " + roomId);
+        }
         return room;
     }
 
@@ -28,6 +34,17 @@ public class RoomRepository {
     }
 
     public void removeRoom(String roomId) {
-        rooms.remove(roomId);
+        if (rooms.remove(roomId) == null) {
+            throw new IllegalArgumentException("Room not found: " + roomId);
+        }
+    } 
+    
+    private String generateRoomId() {
+        while (true) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 4; i++) sb.append(CHARACTERS.charAt(random.nextInt(26)));
+            String roomId = sb.toString();
+            if (!rooms.containsKey(roomId)) return roomId;
+        }
     }
 }

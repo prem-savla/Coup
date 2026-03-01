@@ -3,11 +3,11 @@ package com.game.coup.domain.flow;
 import java.util.*;
 
 import com.game.coup.domain.definitions.ActionType;
-import com.game.coup.domain.definitions.FlowState;
 import com.game.coup.domain.model.Card;
 import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
 import com.game.coup.domain.model.Treasury;
+import com.game.coup.domain.definitions.FlowState;
 
 interface EventState {
     EventState challenge(EventFlow event, Player challenger);
@@ -16,6 +16,7 @@ interface EventState {
     EventState resolve(EventFlow event);
     List<FlowState> getState(EventFlow event);
 }
+
 
 public class EventFlow {
     private Player actor;
@@ -42,7 +43,7 @@ public class EventFlow {
 
     public EventFlow(ActionType action, Player actor, Player target, Treasury treasury, Deck deck) {
 
-        new SanityChecker(action, actor, target, treasury).validate();
+        SanityChecker.initValidate(action, actor, target, treasury);
         
         this.action = action;
         this.actor = actor;
@@ -70,11 +71,7 @@ public class EventFlow {
 
     // FSM entry
     public void performAction(FlowState flowState, Player player){
-        if(flowState == FlowState.RESOLVE && !player.isNone()) 
-            throw new IllegalArgumentException("No player required for resolve");
-
-        if(!getState().contains(flowState))
-            throw new IllegalArgumentException("Invlaid state");
+        SanityChecker.flowValidate(this, flowState, player);
 
         switch (flowState) {
 
@@ -117,32 +114,32 @@ public class EventFlow {
 
 
     // getter setter for variables
-    public Player getActor() { return actor; }
-    public void setActor(Player actor) { this.actor = actor; }
+    protected Player getActor() { return actor; }
+    protected void setActor(Player actor) { this.actor = actor; }
 
-    public ActionType getAction() { return action; }
-    public void setAction(ActionType action) { this.action = action; }
+    protected ActionType getAction() { return action; }
+    protected void setAction(ActionType action) { this.action = action; }
 
-    public Player getTarget() { return target; }
-    public void setTarget(Player target) { this.target = target; }
+    protected Player getTarget() { return target; }
+    protected void setTarget(Player target) { this.target = target; }
 
-    public Player getChallenger() { return challenger; }
-    public void setChallenger(Player challenger) { this.challenger = challenger; }
+    protected Player getChallenger() { return challenger; }
+    protected void setChallenger(Player challenger) { this.challenger = challenger; }
 
-    public boolean isChallengerWon() { return challengerWon; }
-    public void setChallengerWon(boolean challengerWon) { this.challengerWon = challengerWon; }
+    protected boolean isChallengerWon() { return challengerWon; }
+    protected void setChallengerWon(boolean challengerWon) { this.challengerWon = challengerWon; }
 
-    public Player getBlocker() { return blocker; }
-    public void setBlocker(Player blocker) { this.blocker = blocker; }
+    protected Player getBlocker() { return blocker; }
+    protected void setBlocker(Player blocker) { this.blocker = blocker; }
 
-    public boolean isBlockerWon() { return blockerWon; }
-    public void setBlockerWon(boolean blockerWon) { this.blockerWon = blockerWon; }
+    protected boolean isBlockerWon() { return blockerWon; }
+    protected void setBlockerWon(boolean blockerWon) { this.blockerWon = blockerWon; }
 
-    public Player getChallengeBlocker() { return challengeBlocker; }
-    public void setChallengeBlocker(Player challengeBlocker) { this.challengeBlocker = challengeBlocker; }
+    protected Player getChallengeBlocker() { return challengeBlocker; }
+    protected void setChallengeBlocker(Player challengeBlocker) { this.challengeBlocker = challengeBlocker; }
 
-    public Treasury getTreasury(){ return treasury; }
-    public Deck getDeck(){ return deck; }
+    protected Treasury getTreasury(){ return treasury; }
+    protected Deck getDeck(){ return deck; }
 
 }
 
@@ -177,8 +174,6 @@ class ChallengeState extends AbstractEventState {
 
     @Override
     public EventState challenge(EventFlow event, Player challenger) {
-        if(challenger.isNone()) throw new IllegalArgumentException("requires challenger");
-        if(!event.getAction().challengeable) throw new IllegalStateException(" action canot be challenged");
         event.setChallenger(challenger);
         for(Card card :event.getActor().getPlayingCards() ){
             if(card.getType().canPerform(event.getAction())){
@@ -201,8 +196,6 @@ class BlockState extends AbstractEventState {
 
     @Override
     public EventState block(EventFlow event, Player blocker) {
-        if(blocker.isNone()) throw new IllegalArgumentException("requires Blocker");
-        if(!event.getAction().blockable) throw new IllegalStateException(" action canot be blocked");
         event.setBlocker(blocker);
         event.setBlockerWon(true);
         return event.getChallengeBlockState();
@@ -226,7 +219,6 @@ class ChallengeBlockState extends AbstractEventState {
 
     @Override
     public EventState challengeBlock(EventFlow event, Player challengeBlocker) {
-        if(challengeBlocker.isNone()) throw new IllegalArgumentException("requires challengeBlocker");
         event.setChallengeBlocker(challengeBlocker);
 
         for(Card card : event.getBlocker().getPlayingCards()){
