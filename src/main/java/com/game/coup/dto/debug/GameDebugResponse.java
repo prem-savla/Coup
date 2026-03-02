@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 @Getter
 public final class GameDebugResponse {
+    
+        private final String currentPlayer;
 
     private final List<PlayerDebug> players;
 
@@ -17,6 +19,8 @@ public final class GameDebugResponse {
                 .stream()
                 .map(PlayerDebug::new)
                 .collect(Collectors.toList());
+
+        currentPlayer = game.getCurrentPlayer().getName();
 
     }
 

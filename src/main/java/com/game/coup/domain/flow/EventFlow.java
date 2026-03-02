@@ -2,11 +2,10 @@ package com.game.coup.domain.flow;
 
 import java.util.*;
 
+import com.game.coup.domain.Game;
 import com.game.coup.domain.definitions.ActionType;
 import com.game.coup.domain.model.Card;
-import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
-import com.game.coup.domain.model.Treasury;
 import com.game.coup.domain.definitions.FlowState;
 
 interface EventState {
@@ -38,12 +37,11 @@ public class EventFlow {
     private EventState resolveState;
     private EventState deadState;
 
-    private Treasury treasury;
-    private Deck deck;
+    private Game game;
 
-    public EventFlow(ActionType action, Player actor, Player target, Treasury treasury, Deck deck) {
+    public EventFlow(ActionType action, Player actor, Player target, Game game) {
 
-        SanityChecker.initValidate(action, actor, target, treasury);
+        FlowChecker.initValidate(action, actor, target);
         
         this.action = action;
         this.actor = actor;
@@ -51,9 +49,8 @@ public class EventFlow {
         this.challenger = Player.NONE;
         this.blocker = Player.NONE;
         this.challengeBlocker = Player.NONE;
-        
-        this.treasury = treasury;
-        this.deck = deck;
+
+        this.game = game;
 
         // defaults for boolean 
         challengerWon = false;
@@ -71,7 +68,7 @@ public class EventFlow {
 
     // FSM entry
     public void performAction(FlowState flowState, Player player){
-        SanityChecker.flowValidate(this, flowState, player);
+        FlowChecker.flowValidate(this, flowState, player);
 
         switch (flowState) {
 
@@ -138,8 +135,7 @@ public class EventFlow {
     protected Player getChallengeBlocker() { return challengeBlocker; }
     protected void setChallengeBlocker(Player challengeBlocker) { this.challengeBlocker = challengeBlocker; }
 
-    protected Treasury getTreasury(){ return treasury; }
-    protected Deck getDeck(){ return deck; }
+    protected Game getGame(){return game;}
 
 }
 
@@ -258,8 +254,7 @@ class ResolveState extends AbstractEventState {
         event.getChallengeBlocker(),
         event.isChallengerWon(),
         event.isBlockerWon(),
-        event.getTreasury(),
-        event.getDeck())
+        event.getGame())
         .perform();
     }; 
 }
