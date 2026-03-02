@@ -18,7 +18,6 @@ public class GameFlowRequest {
     @NotBlank
     private String roomId;
 
-    @NotBlank
     private String playerName;
 
     private ActionType actionType;

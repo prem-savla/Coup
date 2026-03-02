@@ -3,25 +3,22 @@ package com.game.coup.domain.flow;
 import com.game.coup.domain.definitions.ActionType;
 import com.game.coup.domain.definitions.FlowState;
 import com.game.coup.domain.model.Player;
-import com.game.coup.domain.model.Treasury;
 
 import java.util.Objects;
 
-public final class SanityChecker {
+public final class FlowChecker {
 
-    private SanityChecker() {
+    private FlowChecker() {
         throw new AssertionError("Utility class");
     }
 
     public static void initValidate(
             ActionType action,
             Player actor,
-            Player target,
-            Treasury treasury
+            Player target
     ) {
         Objects.requireNonNull(action, "Action required");
         Objects.requireNonNull(actor, "Actor required");
-        Objects.requireNonNull(treasury, "Treasury required");
 
         if (actor.isNone())
             throw new IllegalArgumentException("Actor required");

@@ -1,7 +1,7 @@
 package com.game.coup.domain.flow;
 
+import com.game.coup.domain.Game;
 import com.game.coup.domain.definitions.ActionType;
-import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
 import com.game.coup.domain.model.Treasury;
 
@@ -17,7 +17,7 @@ public class Resolver {
     private boolean blockerWon;
 
     private Treasury treasury;
-    private Deck deck;
+    private Game game;
 
     public Resolver(ActionType action, 
         Player actor, 
@@ -27,8 +27,7 @@ public class Resolver {
         Player challengeBlocker,
         boolean challengerWon,
         boolean blockerWon,
-        Treasury treasury,
-        Deck deck
+        Game Game
     ) {
         this.action = action;
         this.actor = actor;
@@ -39,30 +38,29 @@ public class Resolver {
         this.challengerWon = challengerWon;
         this.blockerWon = blockerWon;
         
-        this.treasury  = treasury;
-        this.deck = deck;
+        this.treasury  = game.getTreasury();
     }
 
     public void perform(){
 
         if(!challenger.equals(Player.NONE) ){
             if( challengerWon){
-                // Func.forceReveal(actor);
+                game.startReveal(actor);
                 treasury.takeCoins(actor, action.cost);
                 return;
             }else{
-                // Func.forceReveal(challenger);
+                game.startReveal(challenger);
             }
         }
 
         if(!blocker.equals(Player.NONE)) {
             if(blockerWon){
                 if(!challengeBlocker.equals(Player.NONE)){
-                    // Func.forceReveal(challengeBlocker);
+                    game.startReveal(challengeBlocker);
                     treasury.takeCoins(actor, action.cost);
                 }
             }else{
-                // Func.forceReveal(blocker);
+                game.startReveal(blocker);
                 doAction(action, actor, target);
             }
             
@@ -83,7 +81,7 @@ public class Resolver {
                 treasury.giveCoins(actor , ActionType.TAX.gain);
                 break;
             case ActionType.EXCHANGE:
-                // Func.exchangeAction(actor);
+                game.startExchange();
                 break;
             case ActionType.STEAL:
                 int steal = Math.min(target.getCoins(), ActionType.STEAL.gain);
@@ -91,11 +89,11 @@ public class Resolver {
                 target.removeCoins(steal);
                 break;
             case ActionType.ASSASSINATE:
-                // Func.forceReveal(target);
+                game.startReveal(target);
                 treasury.takeCoins(actor, ActionType.ASSASSINATE.cost);
                 break;
             case ActionType.COUP:
-                // Func.forceReveal(target);
+                game.startReveal(target);
                 treasury.takeCoins(actor, ActionType.COUP.cost);
                 break;
             default:

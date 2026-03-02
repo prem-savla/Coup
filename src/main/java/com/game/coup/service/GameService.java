@@ -2,6 +2,7 @@ package com.game.coup.service;
 
 import com.game.coup.domain.Game;
 import com.game.coup.domain.Room;
+import com.game.coup.domain.definitions.FlowState;
 import com.game.coup.dto.GameFlowRequest;
 import com.game.coup.dto.debug.GameDebugResponse;
 import com.game.coup.repository.RoomRepository;
@@ -46,10 +47,14 @@ public class GameService {
         // Counter / Resolve
         else if (request.getFlowState() != null) {
 
-            game.performCounters(
-                    request.getFlowState(),
-                    request.getPlayerName()
-            );
+            if(request.getFlowState() == FlowState.RESOLVE) 
+                game.performResolve(request.getFlowState());
+            else{
+                game.performCounters(
+                        request.getFlowState(),
+                        request.getPlayerName()
+                );
+            }
         }
 
         else {

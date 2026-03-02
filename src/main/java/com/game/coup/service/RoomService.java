@@ -29,8 +29,5 @@ public class RoomService {
         Room room = repository.getRoom(roomId);
         room.markStarted(owner);
     }
-
-    public void deleteRoom(String roomId) {
-        repository.removeRoom(roomId);
-    }
+    
 }
