@@ -25,18 +25,15 @@ public class Deck {
         shuffle();
     }
 
-    public List<Card> dealTwoCards() {
+    public List<Card> dealCards(int n) {
         List<Card> dealt = new ArrayList<>(2);
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < n; i++) {
             dealt.add(cards.remove(cards.size() - 1));
         }
         return dealt;
     }
 
-    public void returnTwoCards(List<Card> returned) {
-        if (returned == null || returned.size() != 2) {
-            throw new IllegalArgumentException("Exactly two cards must be returned.");
-        }
+    public void returnCards(List<Card> returned) {
         for (Card card : returned) {
             if (!originalCardIds.contains(card.getId())) {
                 throw new IllegalStateException("Card does not belong to this deck.");
@@ -44,9 +41,8 @@ public class Deck {
             if (cards.contains(card)) {
                 throw new IllegalStateException("Duplicate card returned.");
             }
+            cards.add(card);
         }
-
-        cards.addAll(returned);
         shuffle();
     }
 

@@ -104,17 +104,25 @@ public class Player {
         playingCards.addAll(cards);
     }
 
-    public void exchangeCards(List<Card> cardsTaken){
+    public void exchangeCards(List<Card> cardsTaken, List<Card> cardsReleased){
+        ensureAlive();
+        if (cardsTaken == null || cardsTaken.isEmpty()) throw new IllegalArgumentException("Cards taken cannot be null or empty.");
+        if (cardsReleased == null || cardsReleased.isEmpty()) throw new IllegalArgumentException("Cards released cannot be null or empty.");
+        if (cardsTaken.size() != cardsReleased.size()  ) throw new IllegalArgumentException("Cards taken and released should be same");
 
-         if (cardsTaken == null || cardsTaken.isEmpty()) {
-            throw new IllegalArgumentException("Cards cannot be null or empty.");
+        int originalCount = playingCards.size();
+        
+        for (Card card : cardsReleased) {
+            boolean removed = playingCards.remove(card);
+            if (!removed) throw new IllegalStateException("Cannot release card not owned by player: " + card.getId());
         }
-
-        if(playingCards.size()!=cardsTaken.size()){
-            throw new IllegalArgumentException("Cannot add cards while exchanging");
+        
+        for (Card card : cardsTaken) {
+            if (playingCards.contains(card) || !cardsReleased.contains(card)) throw new IllegalStateException("Cannot take a card already owned and not released: ");
+            playingCards.add(card);  
         }
-        playingCards.clear();
-        playingCards.addAll(cardsTaken);
+        
+        if(playingCards.size()!=originalCount)throw new IllegalArgumentException("Exchanging cannot add or remove cards");
     }
 
     public void revealCard(Card card) {
@@ -124,7 +132,9 @@ public class Player {
             throw new IllegalArgumentException("Card not owned by player.");
         }
 
-        playingCards.remove(card);
+        boolean removed = playingCards.remove(card);
+        if (!removed) throw new IllegalStateException("Cannot release card not owned by player: " + card.getId());
+        
         revealedCards.add(card);
 
         if (playingCards.isEmpty()) {
