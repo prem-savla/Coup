@@ -18,7 +18,7 @@ public class Player {
         this.name = name;
         this.playingCards = new ArrayList<>();
         this.revealedCards = new ArrayList<>();
-        this.coins = 2;
+        this.coins = 0;
         this.alive = true;
     }
 
