@@ -6,11 +6,11 @@ import com.game.coup.domain.model.Card;
 import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
 import com.game.coup.domain.model.Treasury;
+import com.game.coup.domain.turn.EventFlow;
 import com.game.coup.domain.definitions.ActionType;
 import com.game.coup.domain.definitions.FlowState;
 import com.game.coup.domain.definitions.GamePhase;
 import com.game.coup.domain.definitions.GameState;
-import com.game.coup.domain.flow.EventFlow;
 
 public class Game {
     private final List<Player> players;
@@ -21,7 +21,7 @@ public class Game {
 
     private int currentTurnIndex;
 
-    private GameState gameState;
+    private GamePhase gamePhase;
 
 
     public Game(List<Player> players){
@@ -51,6 +51,10 @@ public class Game {
 
 //---------getter setters------------------------
 
+    public GameState getGameState() {
+        return gamePhase.getGameState();
+    }
+
     public Treasury getTreasury(){ return treasury;}
 
     public Deck getDeck(){ return deck;}
@@ -71,7 +75,7 @@ public class Game {
 
 //----------- player & turn ---------------------
     public void nextTurn() {
-        if(getAlivePlayers().size() <= 1) gameState = GameState.GAME_OVER;
+        if(getAlivePlayers().size() <= 1) gamePhase = GamePhase.GAME_OVER;
         else{
             do {
                 currentTurnIndex = (currentTurnIndex + 1) % players.size();
@@ -87,7 +91,7 @@ public class Game {
 
 // ------------- utils -----------------------------
     public boolean isGameOver() {
-        return gameState == GameState.GAME_OVER;
+        return gamePhase == GamePhase.GAME_OVER;
     }
 
 

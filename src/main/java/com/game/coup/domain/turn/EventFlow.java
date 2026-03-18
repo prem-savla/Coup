@@ -1,4 +1,4 @@
-package com.game.coup.domain.flow;
+package com.game.coup.domain.turn;
 
 import java.util.*;
 
