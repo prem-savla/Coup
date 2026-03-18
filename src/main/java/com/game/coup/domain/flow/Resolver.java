@@ -45,22 +45,22 @@ public class Resolver {
 
         if(!challenger.equals(Player.NONE) ){
             if( challengerWon){
-                game.startReveal(actor);
+                //game.startReveal();(actor);
                 treasury.takeCoins(actor, action.cost);
                 return;
             }else{
-                game.startReveal(challenger);
+                //game.startReveal();(challenger);
             }
         }
 
         if(!blocker.equals(Player.NONE)) {
             if(blockerWon){
                 if(!challengeBlocker.equals(Player.NONE)){
-                    game.startReveal(challengeBlocker);
+                    //game.startReveal();(challengeBlocker);
                     treasury.takeCoins(actor, action.cost);
                 }
             }else{
-                game.startReveal(blocker);
+                //game.startReveal();(blocker);
                 doAction(action, actor, target);
             }
             
@@ -81,7 +81,7 @@ public class Resolver {
                 treasury.giveCoins(actor , ActionType.TAX.gain);
                 break;
             case ActionType.EXCHANGE:
-                game.startExchange();
+                // game.startExchange();
                 break;
             case ActionType.STEAL:
                 int steal = Math.min(target.getCoins(), ActionType.STEAL.gain);
@@ -89,11 +89,11 @@ public class Resolver {
                 target.removeCoins(steal);
                 break;
             case ActionType.ASSASSINATE:
-                game.startReveal(target);
+                //game.startReveal();(target);
                 treasury.takeCoins(actor, ActionType.ASSASSINATE.cost);
                 break;
             case ActionType.COUP:
-                game.startReveal(target);
+                //game.startReveal();(target);
                 treasury.takeCoins(actor, ActionType.COUP.cost);
                 break;
             default:

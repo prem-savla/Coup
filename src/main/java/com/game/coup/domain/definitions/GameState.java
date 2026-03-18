@@ -1,9 +1,15 @@
 package com.game.coup.domain.definitions;
 
 public enum GameState {
-    WAITING_FOR_ACTION,     
-    IN_FLOW,                   
-    WAITING_FOR_EXCHANGE,   
-    WAITING_FOR_REVEAL,
-    GAME_OVER     
+    AWAITING_ACTION,
+
+    AWAITING_RESPONSE, // block or challenge
+
+    AWAITING_CHALLENGE_BLOCK,
+
+    AWAITING_REVEAL,
+
+    AWAITING_EXCHANGE,
+
+    GAME_OVER   
 }
