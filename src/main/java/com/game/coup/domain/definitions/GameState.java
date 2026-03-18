@@ -1,15 +1,20 @@
 package com.game.coup.domain.definitions;
 
+// for frontend abstraction
 public enum GameState {
     AWAITING_ACTION,
 
-    AWAITING_RESPONSE, // block or challenge
+    CHALLENGE_WINDOW,
 
-    AWAITING_CHALLENGE_BLOCK,
+    BLOCK_WINDOW,
+
+    BLOCK_CHALLENGE_WINDOW,
 
     AWAITING_REVEAL,
 
     AWAITING_EXCHANGE,
+
+    RESOLVING, // placeholder for all internal resolving state
 
     GAME_OVER   
 }

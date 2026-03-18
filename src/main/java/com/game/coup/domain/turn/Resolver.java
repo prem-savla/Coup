@@ -1,4 +1,4 @@
-package com.game.coup.domain.flow;
+package com.game.coup.domain.turn;
 
 import com.game.coup.domain.Game;
 import com.game.coup.domain.definitions.ActionType;

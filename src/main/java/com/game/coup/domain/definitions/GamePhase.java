@@ -1,90 +1,64 @@
 package com.game.coup.domain.definitions;
 
+// for backend internal states
 public enum GamePhase {
 
-    WAITING_FOR_ACTION,
+    IDLE(GameState.AWAITING_ACTION),
 
-    CHALLENGE_WINDOW,
+    // ACTION
+    ACTION_DECLARED(GameState.CHALLENGE_WINDOW),
 
-    BLOCK_WINDOW,
+    // CHALLENGE (ACTION)
+    CHALLENGE_WINDOW(GameState.CHALLENGE_WINDOW),
+    CHALLENGE_INITIATED(GameState.RESOLVING),
+    CHALLENGE_RESOLVING(GameState.RESOLVING),
 
-    BLOCK_CHALLENGE_WINDOW,
+    // BLOCK
+    BLOCK_WINDOW(GameState.BLOCK_WINDOW),
+    BLOCK_DECLARED(GameState.BLOCK_CHALLENGE_WINDOW),
+    BLOCK_RESOLVING(GameState.RESOLVING),
 
-    REVEAL_CARD,
+    // BLOCK CHALLENGE
+    BLOCK_CHALLENGE_WINDOW(GameState.BLOCK_CHALLENGE_WINDOW),
+    BLOCK_CHALLENGE_INITIATED(GameState.RESOLVING),
+    BLOCK_CHALLENGE_RESOLVING(GameState.RESOLVING),
 
-    EXCHANGE_SELECTION,
+    // REVEAL
+    REVEAL_INITIATED(GameState.AWAITING_REVEAL),
+    REVEAL_SELECTION(GameState.AWAITING_REVEAL),
+    REVEAL_COMPLETE(GameState.RESOLVING),
 
-    RESOLVING
+    // EXCHANGE
+    EXCHANGE_START(GameState.AWAITING_EXCHANGE),
+    EXCHANGE_SELECTION(GameState.AWAITING_EXCHANGE),
+    EXCHANGE_COMPLETE(GameState.RESOLVING),
 
+    // FINAL ACTION
+    ACTION_EXECUTING(GameState.RESOLVING),
+    ACTION_COMPLETED(GameState.AWAITING_ACTION),
+
+    GAME_OVER(GameState.GAME_OVER);
+
+
+    private final GameState gameState;
+
+    GamePhase(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public boolean isResolving() {
+        return gameState == GameState.RESOLVING;
+    }
 }
 
-/*
-    // Idle,
-
-    // ActionDeclared,
-
-    // ChallengeWindow,
-    // ChallengeInitiated,
-    // ChallengeResolving,
-    // ChallengeResolved,
-
-    // BlockWindow,
-    // BlockDeclared,
-    // BlockResolving,
-    // BlockResolved,
-
-    // BlockChallengeWindow,
-    // BlockChallengeInitiated,
-    // BlockChallengeResolving,
-    // BlockChallengeResolved,
-
-    // RevealStart,
-    // RevealComplete,
-
-    // ActionExecuting,
-    // ActionCompleted
-*/
-
-/*
-action
-challenge
-block
-challenge_block 
-
-perfroming action -> exchange 
-
-performing reveal ->
-*/
-
-/*
-
-init
-action call/ publish
-
-call for challenges (waiting for input)
-challenged -> if reveal (resolver)
-challenge resolved ( perfroming action - reveal or end whatever)
-
-call for block
-blocked ->if reveal
-block resolved
-
-call for challenge block
-challenged_block -> if reveal
-block resolved
-
-action started
-action ended
-
-event over -> init state
-
-------------------------------
-Reveal started
-reveal ended
 
 
 
-*/
+// unified state
 
 /*
 
