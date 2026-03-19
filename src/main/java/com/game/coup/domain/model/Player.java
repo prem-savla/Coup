@@ -50,10 +50,6 @@ public class Player {
         this.alive = false;
     }
 
-    public boolean isNone() {
-        return this == NONE;
-    }
-
     // --------------------------
     // Coin Handling
     // --------------------------
