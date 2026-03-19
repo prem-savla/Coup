@@ -20,16 +20,16 @@ public final class FlowChecker {
         Objects.requireNonNull(action, "Action required");
         Objects.requireNonNull(actor, "Actor required");
 
-        if (actor.isNone())
+        if (actor.equals(Player.NONE))
             throw new IllegalArgumentException("Actor required");
 
         if (!actor.isAlive())
             throw new IllegalStateException("Dead player cannot act");
 
-        if (action.targeted && (target == null || target.isNone()))
+        if (action.targeted && (target == null || target.equals(Player.NONE)))
             throw new IllegalArgumentException(action + " requires a target");
 
-        if (!action.targeted && target != null && !target.isNone())
+        if (!action.targeted && target != null && !target.equals(Player.NONE))
             throw new IllegalArgumentException(action + " does not require a target");
 
         if (action.targeted && target != null && target.equals(actor))
@@ -54,12 +54,12 @@ public final class FlowChecker {
             throw new IllegalArgumentException("Invalid state transition: " + state);
 
         if (state == FlowState.RESOLVE) {
-            if (player != null && !player.isNone())
+            if (player != null && !player.equals(Player.NONE))
                 throw new IllegalArgumentException("Resolve does not require a player");
             return;
         }
 
-        if (player == null || player.isNone())
+        if (player == null || player.equals(Player.NONE))
             throw new IllegalArgumentException("Player required for " + state);
 
         if (!player.isAlive())
@@ -79,7 +79,7 @@ public final class FlowChecker {
                 if (!event.getAction().blockable)
                     throw new IllegalStateException("Action cannot be blocked");
 
-                if (event.getTarget() == null || event.getTarget().isNone())
+                if (event.getTarget() == null || event.getTarget().equals(Player.NONE))
                     throw new IllegalStateException("No target to block");
 
                 if (!player.equals(event.getTarget()))
@@ -87,7 +87,7 @@ public final class FlowChecker {
             }
 
             case CHALLENGE_BLOCK -> {
-                if (event.getBlocker() == null || event.getBlocker().isNone())
+                if (event.getBlocker() == null || event.getBlocker().equals(Player.NONE))
                     throw new IllegalStateException("No block to challenge");
 
                 if (player.equals(event.getBlocker()))
