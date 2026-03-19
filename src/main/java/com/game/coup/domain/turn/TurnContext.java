@@ -9,8 +9,8 @@ import lombok.NonNull;
 public class TurnContext {
 
     // --- Core (always required) ---
-    private final @NonNull Player actor;
-    private final @NonNull ActionType action;
+    private Player actor;
+    private ActionType action;
 
     // --- Optional ---
     private Player target;
@@ -27,6 +27,8 @@ public class TurnContext {
     // --- Constructors  & init ---
 
     private void init(){
+        actor = Player.NONE;
+        action = null;
         target = Player.NONE;
         challenger = Player.NONE;
         blocker = Player.NONE;
@@ -35,17 +37,12 @@ public class TurnContext {
         blockChallengeLoser = Player.NONE;
     }
 
-    private void validateActor(){
-        if(actor.equals(Player.NONE))
-            throw new IllegalStateException("Actor Null");
-    }
-
     // Without target
-    public TurnContext(@NonNull Player actor, @NonNull ActionType action) {
+    public TurnContext(@NonNull Player actor, 
+                       @NonNull ActionType action) {
         init();
-        this.actor = actor;
+        this.actor = setPlayer(actor, this.actor);
         this.action = action;
-        validateActor();
     }
 
     // With target
@@ -53,70 +50,35 @@ public class TurnContext {
                        @NonNull ActionType action,
                        @NonNull Player target) {
         init();
-        this.actor = actor;
+        this.actor = setPlayer(actor, this.actor);
         this.action = action;
-        this.target = target;
-        validateActor();
+        this.target = setPlayer(target, this.target);
     }
 
     // --- Validating Setters ---
 
-    public void setTarget(@NonNull Player target){
+    private Player setPlayer(@NonNull Player newPlayer, @NonNull Player currentPlayer) {
 
-        if(target.equals(Player.NONE))
-            throw new IllegalStateException("Target Null");
+        if (newPlayer.equals(Player.NONE))
+            throw new IllegalStateException("Invalid player");
 
-        this.target = target;
+        if (!currentPlayer.equals(Player.NONE))
+            throw new IllegalStateException("Player already set");
+
+        return newPlayer;
     }
 
-    public void setChallenger(@NonNull Player challenger){
+    public void setChallenger(@NonNull Player challenger) {this.challenger = setPlayer(challenger, this.challenger);}
 
-        if(challenger.equals(Player.NONE))
-            throw new IllegalStateException("Challenger Null");
+    public void setBlocker(@NonNull Player blocker) {this.blocker = setPlayer(blocker, this.blocker);}
 
-        this.challenger = challenger;
-    }
+    public void setBlockChallenger(@NonNull Player blockChallenger) {this.blockChallenger = setPlayer(blockChallenger, this.blockChallenger);}
 
-    public void setBlocker(@NonNull Player blocker){
+    public void setActionChallengeLoser(@NonNull Player loser) {this.actionChallengeLoser = setPlayer(loser, this.actionChallengeLoser);}
 
-        if(blocker.equals(Player.NONE))
-            throw new IllegalStateException("Blocker Null");
+    public void setBlockChallengeLoser(@NonNull Player loser) {this.blockChallengeLoser = setPlayer(loser, this.blockChallengeLoser);}
 
-        this.blocker = blocker;
-    }
-
-    public void setBlockChallenger(@NonNull Player blockChallenger){
-
-        if(blockChallenger.equals(Player.NONE))
-            throw new IllegalStateException("Block Challenger Null");
-
-        if(blocker.equals(Player.NONE))
-            throw new IllegalStateException("No block to challenge");
-
-        this.blockChallenger = blockChallenger;
-    }
-
-    public void setActionChallengeLoser(@NonNull Player loser) {
-
-        if (challenger.equals(Player.NONE))  
-            throw new IllegalStateException("No action challenge exists");
-        if (!loser.equals(actor) && !loser.equals(challenger))
-            throw new IllegalArgumentException("Loser must be either actor or challenger");
-
-        this.actionChallengeLoser = loser;
-    }
-
-    public void setBlockChallengeLoser(@NonNull Player loser) {
-
-        if (blockChallenger.equals(Player.NONE)) 
-            throw new IllegalStateException("No block challenge exists");
-        if (!loser.equals(blocker) && !loser.equals(blockChallenger)) 
-            throw new IllegalArgumentException("Loser must be either blocker or block challenger");
-
-        this.blockChallengeLoser = loser;
-    }
-
-    // --- utils ---
+    // --- resolution ---
 
     public boolean canResolveAction(){
          
