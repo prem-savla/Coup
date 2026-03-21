@@ -96,14 +96,14 @@ public class Game {
     public void startAction(@NonNull Player actor,@NonNull ActionType action) {
         if(gamePhase!=GamePhase.IDLE) throw new IllegalStateException(gamePhase.toString());
         createContext(actor, action, Player.NONE);
-        setGamePhase(GamePhase.CHALLENGE_WINDOW);
+        set1GamePhase();
         
 
     }
     public void startTargetedAction(@NonNull Player actor,@NonNull ActionType action,@NonNull Player target) {
         if(gamePhase!=GamePhase.IDLE) throw new IllegalStateException(gamePhase.toString());
         createContext(actor, action, target);
-        setGamePhase(GamePhase.CHALLENGE_WINDOW);
+        set1GamePhase();
     }
 
     // --- Challenge ---
@@ -118,7 +118,7 @@ public class Game {
 
     public void noChallengeAction(){
         if(gamePhase!=GamePhase.CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
-        setGamePhase(GamePhase.BLOCK_WINDOW);
+        set2GamePhase();
     }
 
     // --- Block ---
@@ -164,7 +164,7 @@ public class Game {
         switch (prevPhase) {
             case CHALLENGE_WINDOW:
                 if(ctx.getActionChallengeLoser().equals(ctx.getActor())) setGamePhase(GamePhase.RESOLVE);
-                else setGamePhase(GamePhase.BLOCK_WINDOW);
+                else set2GamePhase();
                 break;
             case BLOCK_CHALLENGE_WINDOW:
                 setGamePhase(GamePhase.RESOLVE);
@@ -215,6 +215,18 @@ public class Game {
     }
 
     // --- Utils --- 
+
+    // these 1 & 2 functions help pass phase based on action type 
+    private void set1GamePhase(){
+        if(!ctx.getAction().challengeable && !ctx.getAction().blockable) setGamePhase(GamePhase.RESOLVE);
+        else if (!ctx.getAction().challengeable) setGamePhase(GamePhase.BLOCK_WINDOW);
+        else setGamePhase(GamePhase.CHALLENGE_WINDOW);
+    }
+
+    private void set2GamePhase(){
+        if(!ctx.getAction().blockable) setGamePhase(GamePhase.RESOLVE);
+        else setGamePhase(GamePhase.BLOCK_WINDOW);
+    }
 
     private void setGamePhase(GamePhase phase){
         if(phase == GamePhase.IDLE){
