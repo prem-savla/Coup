@@ -13,7 +13,6 @@ import lombok.NonNull;
 
 import com.game.coup.domain.definitions.ActionType;
 import com.game.coup.domain.definitions.GamePhase;
-import com.game.coup.domain.definitions.GameState;
 
 public class Game {
     private final List<Player> players;
@@ -25,6 +24,7 @@ public class Game {
     private int currentTurnIndex;
 
     private GamePhase gamePhase;
+    private GamePhase prevPhase; // used to resolve the reveal action
 
 
     public Game(List<Player> players){
@@ -53,15 +53,17 @@ public class Game {
         }
     }
 
-    //--- getters ---
-
-    // public GameState getGameState() {return gamePhase.getGameState();}
+    // --- Getters ---
 
     public Treasury getTreasury(){ return treasury;}
 
     public Deck getDeck(){ return deck;}
 
     public TurnContext getTurnContext() {return ctx;}
+
+    public GamePhase getGamePhase(){return gamePhase;}
+
+    public Player getCurrentPlayer() {return players.get(currentTurnIndex);}
 
     public Player getPlayerByName(String name) {
         return players.stream()
@@ -77,9 +79,10 @@ public class Game {
                 .toList();
     }
 
-    //--- Context mgm ---
+    // --- Context mgm ---
 
     private void createContext(@NonNull Player actor,@NonNull ActionType action,@NonNull Player target) {
+        if(gamePhase == GamePhase.GAME_OVER) throw new IllegalStateException("GAME OVER");
         if(target.equals(Player.NONE)) ctx = new TurnContext(actor, action);
         else ctx = new TurnContext(actor, action, target);
     }
@@ -88,88 +91,150 @@ public class Game {
         ctx = null;
     }
 
-    //--- action ---
+    // --- Action ---
+
     public void startAction(@NonNull Player actor,@NonNull ActionType action) {
+        if(gamePhase!=GamePhase.IDLE) throw new IllegalStateException(gamePhase.toString());
         createContext(actor, action, Player.NONE);
-        gamePhase = GamePhase.CHALLENGE_OR_BLOCK_WINDOW;
+        setGamePhase(GamePhase.CHALLENGE_WINDOW);
         
 
     }
     public void startTargetedAction(@NonNull Player actor,@NonNull ActionType action,@NonNull Player target) {
+        if(gamePhase!=GamePhase.IDLE) throw new IllegalStateException(gamePhase.toString());
         createContext(actor, action, target);
-        gamePhase = GamePhase.CHALLENGE_OR_BLOCK_WINDOW;
+        setGamePhase(GamePhase.CHALLENGE_WINDOW);
     }
 
-    // --- challenge ---
+    // --- Challenge ---
+
     public void challengeAction(@NonNull Player challenger) {
+        if(gamePhase!=GamePhase.CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
         ctx.setChallenger(challenger);
         Executioner.executeChallenge(this);
         Player loser = ctx.getActionChallengeLoser();
         startReveal(loser);  
     }
 
-    //--- block ---
-    public void blockAction(@NonNull Player blocker) {
-        ctx.setBlocker(blocker);
+    public void noChallengeAction(){
+        if(gamePhase!=GamePhase.CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
+        setGamePhase(GamePhase.BLOCK_WINDOW);
     }
 
-    //--- block challenge ---
+    // --- Block ---
+
+    public void blockAction(@NonNull Player blocker) {
+        if(gamePhase !=GamePhase.BLOCK_WINDOW) throw new IllegalStateException(gamePhase.toString());
+        ctx.setBlocker(blocker);
+        setGamePhase(GamePhase.BLOCK_CHALLENGE_WINDOW);
+    }
+
+    public void noBlockAction(){
+        if(gamePhase!=GamePhase.BLOCK_WINDOW) throw new IllegalStateException(gamePhase.toString());
+        setGamePhase(GamePhase.RESOLVE);
+    }
+
+    // --- Block challenge ---
 
     public void challengeBlock(@NonNull Player blockChallenger) {
+        if(gamePhase!=GamePhase.BLOCK_CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
         ctx.setBlockChallenger(blockChallenger);
         Executioner.executeBlockChallenge(this);
         Player loser = ctx.getBlockChallengeLoser();
         startReveal(loser);
     }
 
-    // --- reveal ---
+    public void noChallengeBlock(){
+        if(gamePhase!=GamePhase.BLOCK_CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
+        setGamePhase(GamePhase.RESOLVE);
+    }
 
-    public String startReveal(Player player){
+    // --- Reveal ---
+
+    private String startReveal(Player player){
+        gamePhase = GamePhase.REVEAL;
         return player.getName();
         // call game service 
     }
 
     public void executeReveal(Player player, Card revealedCard){
+        if(gamePhase != GamePhase.REVEAL) throw new IllegalStateException(gamePhase.toString());
         player.revealCard(revealedCard);
+
+        switch (prevPhase) {
+            case CHALLENGE_WINDOW:
+                if(ctx.getActionChallengeLoser().equals(ctx.getActor())) setGamePhase(GamePhase.RESOLVE);
+                else setGamePhase(GamePhase.BLOCK_WINDOW);
+                break;
+            case BLOCK_CHALLENGE_WINDOW:
+                setGamePhase(GamePhase.RESOLVE);
+                break;
+            case RESOLVE:
+                setGamePhase(GamePhase.IDLE);
+                break;
+            default:
+                break;
+        }
     }
 
-    // --- exchange action ---
+    // --- Exchange action ---
 
-    public List<Card>  startExchange() {
+    private List<Card>  startExchange() {
+        setGamePhase(GamePhase.EXCHANGE);
         return deck.dealCards(2);
         //call game service 
     }
 
     public void executeExchange(List<Card> cardsDrawn, List<Card> cardsReturned){
+        if(gamePhase != GamePhase.EXCHANGE) throw new IllegalStateException(gamePhase.toString());
         ctx.getActor().exchangeCards(cardsDrawn, cardsReturned);
         deck.returnCards(cardsReturned);
+        setGamePhase(GamePhase.IDLE);
     }
 
-    // --- execution ---
+    // --- Execution ---
 
-    public void executeAction(){
-        Executioner.executeAction(this);
-        nextTurn();
-        destroyContext();
+    private void executeAction(){
+        if(gamePhase != GamePhase.RESOLVE) throw new IllegalStateException(gamePhase.toString());
+
+        switch (ctx.getAction()) {
+            case EXCHANGE:
+                startExchange();
+                break;
+            case ASSASSINATE:
+                startReveal(ctx.getTarget());
+                break;
+            case COUP:
+                startReveal(ctx.getTarget());
+                break;
+            default:
+                Executioner.executeAction(this);
+                setGamePhase(GamePhase.IDLE);
+                break;
+        }
     }
 
-    //--- player & turn ---
-    public void nextTurn() {
+    // --- Utils --- 
+
+    private void setGamePhase(GamePhase phase){
+        if(phase == GamePhase.IDLE){
+            nextTurn();
+            destroyContext();
+        }else if(phase == GamePhase.RESOLVE){
+            executeAction();
+        }
+        gamePhase = phase;
+        prevPhase = phase;
+    }
+
+    private void nextTurn() {
         if(getAlivePlayers().size() <= 1) gamePhase = GamePhase.GAME_OVER;
         else{
             do {
                 currentTurnIndex = (currentTurnIndex + 1) % players.size();
             } while (!players.get(currentTurnIndex).isAlive());
-            // event = null;
         }
     }
-
-    public Player getCurrentPlayer() {
-        return players.get(currentTurnIndex);
-    }
-
-
-    // --- utils --- 
 
     public boolean isGameOver() {
         return gamePhase == GamePhase.GAME_OVER;
@@ -237,3 +302,14 @@ ask to choose between cards
 
 // new card no show / reveal 
 // option for block also not there
+
+// mismatched reveal exchange can do it so can game so whats the point ??
+
+// after challenge won can I block yes ofcourse
+
+// after reveal state matters 
+// validate when to perform action 
+// even for block need a state of block window
+// need some sort of FSM shit 
+
+// auto state changer for window

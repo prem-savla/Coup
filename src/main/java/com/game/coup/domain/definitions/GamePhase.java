@@ -3,60 +3,13 @@ package com.game.coup.domain.definitions;
 // for backend internal states
 public enum GamePhase {
     IDLE,
-    CHALLENGE_OR_BLOCK_WINDOW,
+    CHALLENGE_WINDOW,
+    BLOCK_WINDOW,
+    BLOCK_CHALLENGE_WINDOW,
+    REVEAL,
+    EXCHANGE,
+    RESOLVE,
     GAME_OVER
-
-
-    // IDLE(GameState.AWAITING_ACTION),
-
-    // // ACTION
-    // ACTION_DECLARED(GameState.CHALLENGE_WINDOW),
-
-    // // CHALLENGE (ACTION)
-    // CHALLENGE_WINDOW(GameState.CHALLENGE_WINDOW),
-    // CHALLENGE_INITIATED(GameState.RESOLVING),
-    // CHALLENGE_RESOLVING(GameState.RESOLVING),
-
-    // // BLOCK
-    // BLOCK_WINDOW(GameState.BLOCK_WINDOW),
-    // BLOCK_DECLARED(GameState.BLOCK_CHALLENGE_WINDOW),
-    // BLOCK_RESOLVING(GameState.RESOLVING),
-
-    // // BLOCK CHALLENGE
-    // BLOCK_CHALLENGE_WINDOW(GameState.BLOCK_CHALLENGE_WINDOW),
-    // BLOCK_CHALLENGE_INITIATED(GameState.RESOLVING),
-    // BLOCK_CHALLENGE_RESOLVING(GameState.RESOLVING),
-
-    // // REVEAL
-    // REVEAL_INITIATED(GameState.AWAITING_REVEAL),
-    // REVEAL_SELECTION(GameState.AWAITING_REVEAL),
-    // REVEAL_COMPLETE(GameState.RESOLVING),
-
-    // // EXCHANGE
-    // EXCHANGE_START(GameState.AWAITING_EXCHANGE),
-    // EXCHANGE_SELECTION(GameState.AWAITING_EXCHANGE),
-    // EXCHANGE_COMPLETE(GameState.RESOLVING),
-
-    // // FINAL ACTION
-    // ACTION_EXECUTING(GameState.RESOLVING),
-    // ACTION_COMPLETED(GameState.AWAITING_ACTION),
-
-    // GAME_OVER(GameState.GAME_OVER);
-
-
-    // private final GameState gameState;
-
-    // GamePhase(GameState gameState) {
-    //     this.gameState = gameState;
-    // }
-
-    // public GameState getGameState() {
-    //     return gameState;
-    // }
-
-    // public boolean isResolving() {
-    //     return gameState == GameState.RESOLVING;
-    // }
 }
 
 

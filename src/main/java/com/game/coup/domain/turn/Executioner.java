@@ -78,7 +78,7 @@ public class Executioner {
 
             case TAX -> treasury.giveCoins(actor, action.gain);
 
-            case EXCHANGE -> game.isGameOver(); //game.startExcahnge(target);
+            case EXCHANGE -> noOperation();
             
             case STEAL -> {
                 int steal = Math.min(target.getCoins(), action.gain);
@@ -86,10 +86,13 @@ public class Executioner {
                 target.removeCoins(steal);
             }
 
-            case ASSASSINATE -> game.isGameOver(); // game.startReveal(target);
+            case ASSASSINATE -> noOperation();
             
-            case COUP -> game.isGameOver(); // game.startReveal(target);
+            case COUP -> noOperation();
         }
     }
+
+    // game handles interactive operation
+    private static void noOperation(){}
 
 }
