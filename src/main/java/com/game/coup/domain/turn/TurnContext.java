@@ -68,15 +68,35 @@ public class TurnContext {
         return newPlayer;
     }
 
+    private void checkBlockChallenger(){
+        if(blocker.equals(Player.NONE)) throw new IllegalStateException("Blocker not set");
+    }
+    private void checkActionChallengeLoser(){
+        if(challenger.equals(Player.NONE)) throw new IllegalStateException("Challenger not set");
+    }
+    private void checkBlockChallengeLoser(){
+        if(blocker.equals(Player.NONE)) throw new IllegalStateException("Blocker not set");
+        if(blockChallenger.equals(Player.NONE)) throw new IllegalStateException("Block challenger not set");
+    }
+
     public void setChallenger(@NonNull Player challenger) {this.challenger = setPlayer(challenger, this.challenger);}
 
     public void setBlocker(@NonNull Player blocker) {this.blocker = setPlayer(blocker, this.blocker);}
 
-    public void setBlockChallenger(@NonNull Player blockChallenger) {this.blockChallenger = setPlayer(blockChallenger, this.blockChallenger);}
+    public void setBlockChallenger(@NonNull Player blockChallenger) {
+        checkBlockChallenger();
+        this.blockChallenger = setPlayer(blockChallenger, this.blockChallenger);
+    }
 
-    public void setActionChallengeLoser(@NonNull Player loser) {this.actionChallengeLoser = setPlayer(loser, this.actionChallengeLoser);}
+    public void setActionChallengeLoser(@NonNull Player loser) {
+        checkActionChallengeLoser(); 
+        this.actionChallengeLoser = setPlayer(loser, this.actionChallengeLoser);
+    }
 
-    public void setBlockChallengeLoser(@NonNull Player loser) {this.blockChallengeLoser = setPlayer(loser, this.blockChallengeLoser);}
+    public void setBlockChallengeLoser(@NonNull Player loser) {
+        checkBlockChallengeLoser(); 
+        this.blockChallengeLoser = setPlayer(loser, this.blockChallengeLoser);
+    }
 
     // --- resolution ---
 
@@ -95,8 +115,6 @@ public class TurnContext {
     }
 
     public boolean canExecuteAction(){
-        if(!canResolveAction()) 
-            return false;
         if(actionChallengeLoser.equals(actor)) 
             return false;
         if(!blockChallengeLoser.equals(blocker) && !blocker.equals(Player.NONE)) 
