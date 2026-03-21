@@ -100,21 +100,21 @@ public class Player {
         playingCards.addAll(cards);
     }
 
-    public void exchangeCards(List<Card> cardsTaken, List<Card> cardsReleased){
+    public void exchangeCards(List<Card> cardsDrawn, List<Card> cardsReturned){
         ensureAlive();
-        if (cardsTaken == null || cardsTaken.isEmpty()) throw new IllegalArgumentException("Cards taken cannot be null or empty.");
-        if (cardsReleased == null || cardsReleased.isEmpty()) throw new IllegalArgumentException("Cards released cannot be null or empty.");
-        if (cardsTaken.size() != cardsReleased.size()  ) throw new IllegalArgumentException("Cards taken and released should be same");
+        if (cardsDrawn == null || cardsDrawn.isEmpty()) throw new IllegalArgumentException("Cards taken cannot be null or empty.");
+        if (cardsReturned == null || cardsReturned.isEmpty()) throw new IllegalArgumentException("Cards released cannot be null or empty.");
+        if (cardsDrawn.size() != cardsReturned.size()  ) throw new IllegalArgumentException("Cards taken and released should be same");
 
         int originalCount = playingCards.size();
         
-        for (Card card : cardsReleased) {
+        for (Card card : cardsReturned) {
             boolean removed = playingCards.remove(card);
             if (!removed) throw new IllegalStateException("Cannot release card not owned by player: " + card.getId());
         }
         
-        for (Card card : cardsTaken) {
-            if (playingCards.contains(card) || !cardsReleased.contains(card)) throw new IllegalStateException("Cannot take a card already owned and not released: ");
+        for (Card card : cardsDrawn) {
+            if (playingCards.contains(card) || !cardsReturned.contains(card)) throw new IllegalStateException("Cannot take a card already owned and not released: ");
             playingCards.add(card);  
         }
         
@@ -123,6 +123,9 @@ public class Player {
 
     public void revealCard(Card card) {
         ensureAlive();
+        if (card == null) {
+            throw new IllegalArgumentException("Card cannot be null.");
+        }
 
         if (!playingCards.contains(card)) {
             throw new IllegalArgumentException("Card not owned by player.");

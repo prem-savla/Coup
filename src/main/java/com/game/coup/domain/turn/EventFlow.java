@@ -41,7 +41,6 @@ public class EventFlow {
 
     public EventFlow(ActionType action, Player actor, Player target, Game game) {
 
-        FlowChecker.initValidate(action, actor, target);
         
         this.action = action;
         this.actor = actor;
@@ -68,7 +67,6 @@ public class EventFlow {
 
     // FSM entry
     public void performAction(FlowState flowState, Player player){
-        FlowChecker.flowValidate(this, flowState, player);
 
         switch (flowState) {
 
@@ -246,16 +244,7 @@ class ResolveState extends AbstractEventState {
     }
 
     public void perform(EventFlow event){
-        new Resolver(event.getAction(), 
-        event.getActor(), 
-        event.getTarget(),
-        event.getChallenger(),
-        event.getBlocker(), 
-        event.getChallengeBlocker(),
-        event.isChallengerWon(),
-        event.isBlockerWon(),
-        event.getGame())
-        .perform();
+        
     }; 
 }
 
