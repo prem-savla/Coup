@@ -2,7 +2,6 @@ package com.game.coup.domain.turn;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.game.coup.domain.Game;
 import com.game.coup.domain.definitions.ActionType;
@@ -12,11 +11,12 @@ import com.game.coup.domain.model.Treasury;
 
 public class Executioner {
 
+    // This class is a helper for thr game class that abstracts few complex functions
     private Executioner() {
         throw new AssertionError("Utility class");
     }
 
-    public static Optional<Card> executeChallenge(Game game){
+    public static void executeChallenge(Game game){
         TurnContext ctx = Objects.requireNonNull(game.getTurnContext(), "Context is not initialized");
         ActionType action = ctx.getAction();
         Player actor = ctx.getActor();
@@ -26,14 +26,18 @@ public class Executioner {
     
         for(Card card: actor.getPlayingCards()){
             if(card.getType().canPerform(action)){ 
-                return Optional.of(card);
-            
+                ctx.setActionChallengeLoser(challenger);
+                List<Card> cardsDrawn = game.getDeck().dealCards(1);
+                List<Card> cardsReturned = List.of(card);
+                actor.exchangeCards(cardsDrawn, cardsReturned);
+                game.getDeck().returnCards(cardsReturned);
+                return;
             }
         }
-        return Optional.empty();
+        ctx.setActionChallengeLoser(actor);
     }
 
-    public static Optional<Card> executeBlockChallenge(Game game){
+    public static void executeBlockChallenge(Game game){
         TurnContext ctx = Objects.requireNonNull(game.getTurnContext(), "Context is not initialized");
         ActionType action = ctx.getAction();
         Player blocker = ctx.getBlocker();
@@ -44,10 +48,15 @@ public class Executioner {
 
         for(Card card: blocker.getPlayingCards()){
             if(card.getType().canBlock(action)){ 
-                return Optional.of(card);
+                ctx.setBlockChallengeLoser(blockChallenger);
+                List<Card> cardsDrawn = game.getDeck().dealCards(1);
+                List<Card> cardsReturned = List.of(card);
+                blocker.exchangeCards(cardsDrawn, cardsReturned);
+                game.getDeck().returnCards(cardsReturned);
+                return;
             }
         }
-        return Optional.empty();
+       ctx.setBlockChallengeLoser(blockChallenger);
     }
     
     public static void executeAction(Game game) {

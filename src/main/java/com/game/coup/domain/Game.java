@@ -1,7 +1,6 @@
 package com.game.coup.domain;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.game.coup.domain.model.Card;
 import com.game.coup.domain.model.Deck;
@@ -104,18 +103,9 @@ public class Game {
     // --- challenge ---
     public void challengeAction(@NonNull Player challenger) {
         ctx.setChallenger(challenger);
-        Optional<Card> provenCard = Executioner.executeChallenge(this);
+        Executioner.executeChallenge(this);
         Player loser = ctx.getActionChallengeLoser();
-        if (loser.equals(challenger)) {
-            if (provenCard.isEmpty()) throw new IllegalStateException("Expected proven card");
-            Card card = provenCard.get();
-            List<Card> cardsDrawn = deck.dealCards(1);
-            List<Card> cardsReturned = List.of(card);
-            ctx.getActor().exchangeCards(cardsDrawn, cardsReturned);
-            deck.returnCards(cardsReturned);
-        }
-        //reveal for loser
-
+        startReveal(loser);  
     }
 
     //--- block ---
@@ -127,18 +117,9 @@ public class Game {
 
     public void challengeBlock(@NonNull Player blockChallenger) {
         ctx.setBlockChallenger(blockChallenger);
-        Optional<Card> provenCard = Executioner.executeBlockChallenge(this);
+        Executioner.executeBlockChallenge(this);
         Player loser = ctx.getBlockChallengeLoser();
-        if (loser.equals(blockChallenger)) {
-            if (provenCard.isEmpty()) throw new IllegalStateException("Expected proven card");
-            Card card = provenCard.get();
-            List<Card> cardsDrawn = deck.dealCards(1);
-            List<Card> cardsReturned = List.of(card);
-            ctx.getBlocker().exchangeCards(cardsDrawn, cardsReturned);
-            deck.returnCards(cardsReturned);
-        }
-        //reveal for loser
-
+        startReveal(loser);
     }
 
     // --- reveal ---
@@ -251,3 +232,8 @@ excahnge
 ask to choose between cards 
 
 */
+
+
+
+// new card no show / reveal 
+// option for block also not there
