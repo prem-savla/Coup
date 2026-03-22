@@ -36,9 +36,7 @@ public class Player {
         return name;
     }
 
-    // --------------------------
-    // Null Player
-    // --------------------------
+    // --- Null Player ---
 
     public static final Player NONE = new Player();
 
@@ -50,10 +48,8 @@ public class Player {
         this.alive = false;
     }
 
-    // --------------------------
-    // Coin Handling
-    // --------------------------
-
+    // ---  Coin Handling ---
+  
     public void addCoins(int amount) {
         ensureAlive();
 
@@ -82,9 +78,7 @@ public class Player {
         return coins;
     }
 
-    // --------------------------
-    // Card Handling
-    // --------------------------
+    // --- Card Handling ---
 
     public void addCards(List<Card> cards) {
         ensureAlive();
