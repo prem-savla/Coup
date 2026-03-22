@@ -12,13 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class GameController {
 
     private final GameService gameService;
 
-    @PostMapping("/{roomId}/state")
+    @GetMapping("/{roomId}/state")
     public GameStateResponse getGameState(
             @PathVariable String roomId,
             @Valid @RequestBody GameStateRequest request
