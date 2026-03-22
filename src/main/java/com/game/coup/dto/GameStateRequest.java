@@ -1,7 +1,5 @@
 package com.game.coup.dto;
 
-import com.game.coup.domain.definitions.ActionType;
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,14 +10,11 @@ import lombok.Builder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GameFlowRequest {
+public class GameStateRequest {
 
     @NotBlank
     private String roomId;
 
+    @NotBlank
     private String playerName;
-
-    private ActionType actionType;
-
-    private String targetName;
 }
