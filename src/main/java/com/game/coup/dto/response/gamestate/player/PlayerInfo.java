@@ -1,4 +1,4 @@
-package com.game.coup.dto.response.gamestate;
+package com.game.coup.dto.response.gamestate.player;
 
 import java.util.List;
 
