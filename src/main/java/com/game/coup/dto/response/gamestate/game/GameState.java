@@ -1,4 +1,4 @@
-package com.game.coup.dto.response.gamestate;
+package com.game.coup.dto.response.gamestate.game;
 
 import com.game.coup.domain.definitions.ActionType;
 import com.game.coup.domain.definitions.GamePhase;
