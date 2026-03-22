@@ -1,4 +1,4 @@
-package com.game.coup.dto;
+package com.game.coup.dto.response;
 
 public class GameMoveResponse {
     

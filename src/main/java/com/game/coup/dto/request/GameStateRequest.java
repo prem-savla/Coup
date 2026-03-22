@@ -1,20 +1,16 @@
-package com.game.coup.dto;
+package com.game.coup.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class GameStateRequest {
-
-    @NotBlank
-    private String roomId;
-
+    
     @NotBlank
     private String playerName;
 }

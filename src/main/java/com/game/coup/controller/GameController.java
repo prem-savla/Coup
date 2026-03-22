@@ -1,39 +1,41 @@
-// package com.game.coup.controller;
+package com.game.coup.controller;
 
-// import com.game.coup.dto.GameFlowRequest;
-// import com.game.coup.dto.debug.GameDebugResponse;
-// import com.game.coup.service.GameService;
+import com.game.coup.dto.debug.GameDebugResponse;
+import com.game.coup.dto.request.GameMoveRequest;
+import com.game.coup.dto.request.GameStateRequest;
+import com.game.coup.dto.response.GameMoveResponse;
+import com.game.coup.dto.response.gamestate.GameStateResponse;
+import com.game.coup.service.GameService;
 
-// import jakarta.validation.Valid;
-// import lombok.RequiredArgsConstructor;
-// import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
-// @RestController
-// @RequestMapping("/api")
-// @RequiredArgsConstructor
-// public class GameController {
+@RestController
+@RequestMapping("/api/rooms")
+@RequiredArgsConstructor
+public class GameController {
 
-//     private final GameService gameService;
+    private final GameService gameService;
 
-//     @PostMapping("/{roomId}/play")
-//     public void handleFlow(
-//             @PathVariable String roomId,
-//             @Valid @RequestBody GameFlowRequest request
-//     ) {
-//         if (!roomId.equals(request.getRoomId())) {
-//             throw new IllegalArgumentException("RoomId mismatch");
-//         }
+    @PostMapping("/{roomId}/state")
+    public GameStateResponse getGameState(
+            @PathVariable String roomId,
+            @Valid @RequestBody GameStateRequest request
+    ) {
+        return gameService.getGameState(roomId, request);
+    }
 
-//         gameService.handleFlow(request);
-//     }
+    @PostMapping("/{roomId}/move")
+    public GameMoveResponse processMove(
+            @PathVariable String roomId,
+            @Valid @RequestBody GameMoveRequest request
+    ) {
+        return gameService.processGameMove(roomId, request);
+    }
 
-//     @GetMapping("/{roomId}/options")
-//     public Object getOptions(@PathVariable String roomId) {
-//         return gameService.getOptions(roomId);
-//     }
-
-//     @GetMapping("/{roomId}/debug")
-//     public GameDebugResponse debug(@PathVariable String roomId) {
-//         return gameService.getDebugState(roomId);
-//     }
-// }
+    @GetMapping("/{roomId}/debug")
+    public GameDebugResponse debug(@PathVariable String roomId) {
+        return gameService.getDebugState(roomId);
+    }
+}

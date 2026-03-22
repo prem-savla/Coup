@@ -1,10 +1,18 @@
 package com.game.coup.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.game.coup.domain.Game;
+import com.game.coup.domain.definitions.GamePhase;
 import com.game.coup.domain.model.Player;
-import com.game.coup.dto.GameStateResponse;
+import com.game.coup.dto.response.gamestate.GameState;
+import com.game.coup.dto.response.gamestate.GameStateResponse;
+import com.game.coup.dto.response.gamestate.PlayerInfo;
+import com.game.coup.dto.response.gamestate.PlayerOptions;
+import com.game.coup.dto.response.gamestate.PlayersState;
 
 import lombok.NonNull;
 
@@ -15,66 +23,57 @@ public class GameStateResolver {
 
         if ( viewer.equals(Player.NONE)) throw new IllegalArgumentException("Invalid player");
 
-        switch (game.getGamePhase()) {
+        GameState gameState = getGameState(game);
+        PlayersState playersState = getPlayersState(game, viewer);
+        PlayerOptions playerOptions = getPlayerOptions(game.getGamePhase(), viewer);
 
-            case IDLE:
-                return idleState(game, viewer);
-
-            case CHALLENGE_WINDOW:
-                return challengeState(game, viewer);
-
-            case BLOCK_WINDOW:
-                return blockState(game, viewer);
-
-            case BLOCK_CHALLENGE_WINDOW:
-                return blockChallengeState(game, viewer);
-
-            case REVEAL:
-                return revealState(game, viewer);
-
-            case EXCHANGE:
-                return exchangeState(game, viewer);
-
-            case RESOLVE:
-                return resolutionState(game, viewer);
-
-            case GAME_OVER:
-                return gameOverState(game, viewer);
-
-            default:
-                throw new IllegalStateException("Unknown phase");
-        }
+        return new GameStateResponse(gameState, playersState, playerOptions);
+    
     }
     
-    private GameStateResponse idleState(Game game, Player viewer){
-        return null;
+    private GameState getGameState(Game game){
+        GameState state = GameState.builder()
+        .phase(game.getGamePhase())
+        .action(game.getTurnContext().getAction())
+        .actor(game.getTurnContext().getActor().getName())
+        .target(game.getTurnContext().getTarget().getName())
+        .challenger(game.getTurnContext().getChallenger().getName())
+        .blocker(game.getTurnContext().getBlocker().getName())
+        .blockChallenger(game.getTurnContext().getBlockChallenger().getName())
+        .build();
+        return state;
     }
 
-    private GameStateResponse challengeState(Game game, Player viewer){
-        return null;
+    private PlayersState getPlayersState(Game game, Player viewer){
+        PlayerInfo self = PlayerInfo.builder()
+        .name(viewer.getName())
+        .coins(viewer.getCoins())
+        .revealedCards(List.copyOf(viewer.getRevealedCards()))
+        .build();
+
+        List<PlayerInfo> otherPlayers = new ArrayList<>();
+
+        for(Player player : game.getAlivePlayers()){
+            if(!player.equals(viewer)){
+                PlayerInfo other = PlayerInfo.builder()
+                .name(player.getName())
+                .coins(player.getCoins())
+                .revealedCards(List.copyOf(player.getRevealedCards()))
+                .build();
+            otherPlayers.add(other);
+            }
+        }
+
+        return PlayersState.builder()
+        .currentPlayer(self)
+        .playingCards(List.copyOf(viewer.getPlayingCards()))
+        .otherPlayers(otherPlayers)
+        .build();
+    
     }
 
-    private GameStateResponse blockState(Game game, Player viewer){
-        return null;
+    private PlayerOptions getPlayerOptions(GamePhase phase, Player viewer){
+        return new PlayerOptions();
     }
 
-    private GameStateResponse blockChallengeState(Game game, Player viewer){
-        return null;
-    }
-
-    private GameStateResponse revealState(Game game, Player viewer){
-        return null;
-    }
-
-    private GameStateResponse exchangeState(Game game, Player viewer){
-        return null;
-    }
-
-    private GameStateResponse resolutionState(Game game, Player viewer){
-        return null;
-    }
-
-    private GameStateResponse gameOverState(Game game, Player viewer){
-        return null;
-    }
 }
