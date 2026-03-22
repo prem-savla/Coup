@@ -1,6 +1,6 @@
 package com.game.coup.controller;
 
-import com.game.coup.dto.RoomRequest;
+import com.game.coup.dto.request.RoomRequest;
 import com.game.coup.service.RoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

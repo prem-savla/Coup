@@ -1,4 +1,4 @@
-package com.game.coup.dto;
+package com.game.coup.dto.request;
 
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;

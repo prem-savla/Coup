@@ -1,6 +1,7 @@
 package com.game.coup.domain.model;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.UUID;
 
 import com.game.coup.domain.definitions.Role;
 
@@ -14,7 +15,6 @@ public class Card {
         this.type = type;
     }
 
-
     public String getId() {
         return id;
     }
@@ -23,15 +23,6 @@ public class Card {
         return type;
     }
     
-    public boolean sameType(Card other) {
-        if (other == null) return false;
-        return this.type == other.type;
-    }
-
-    public boolean hasType(Role role) {
-        return this.type == role;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
