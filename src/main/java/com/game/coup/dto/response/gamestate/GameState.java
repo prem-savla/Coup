@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 
-import jakarta.validation.constraints.NotBlank;
-
 @Getter
 @Builder
 public class GameState {
@@ -16,10 +14,7 @@ public class GameState {
     @NonNull
     private final GamePhase phase;
 
-    @NonNull
     private final ActionType action;
-
-    @NotBlank
     private final String actor;
     private final String target;
     private final String challenger;

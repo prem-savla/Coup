@@ -23,4 +23,13 @@ public class GlobalExceptionHandler {
         problem.setDetail(ex.getMessage());
         return problem;
     }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleAll(Exception ex) {
+
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problem.setTitle("Internal Server Error");
+        problem.setDetail(ex.getMessage());
+        return problem;
+    }
 }

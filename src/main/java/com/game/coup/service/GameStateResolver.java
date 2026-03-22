@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.game.coup.domain.Game;
 import com.game.coup.domain.definitions.GamePhase;
+import com.game.coup.domain.model.Card;
 import com.game.coup.domain.model.Player;
 import com.game.coup.dto.response.gamestate.GameState;
 import com.game.coup.dto.response.gamestate.GameStateResponse;
+import com.game.coup.dto.response.gamestate.OtherPlayerInfo;
 import com.game.coup.dto.response.gamestate.PlayerInfo;
 import com.game.coup.dto.response.gamestate.PlayerOptions;
 import com.game.coup.dto.response.gamestate.PlayersState;
@@ -32,6 +34,13 @@ public class GameStateResolver {
     }
     
     private GameState getGameState(Game game){
+        if(game.getGamePhase() == GamePhase.IDLE){
+            GameState state = GameState.builder()
+            .phase(game.getGamePhase())
+            .build();
+            return state;
+        }
+        
         GameState state = GameState.builder()
         .phase(game.getGamePhase())
         .action(game.getTurnContext().getAction())
@@ -48,17 +57,18 @@ public class GameStateResolver {
         PlayerInfo self = PlayerInfo.builder()
         .name(viewer.getName())
         .coins(viewer.getCoins())
-        .revealedCards(List.copyOf(viewer.getRevealedCards()))
+        .playingCards(getCardsView(viewer.getPlayingCards()))
+        .revealedCards(getCardsView(viewer.getRevealedCards()))
         .build();
 
-        List<PlayerInfo> otherPlayers = new ArrayList<>();
+        List<OtherPlayerInfo> otherPlayers = new ArrayList<>();
 
         for(Player player : game.getAlivePlayers()){
             if(!player.equals(viewer)){
-                PlayerInfo other = PlayerInfo.builder()
+                OtherPlayerInfo other = OtherPlayerInfo.builder()
                 .name(player.getName())
                 .coins(player.getCoins())
-                .revealedCards(List.copyOf(player.getRevealedCards()))
+                .revealedCards(getCardsView(player.getRevealedCards()))
                 .build();
             otherPlayers.add(other);
             }
@@ -66,7 +76,6 @@ public class GameStateResolver {
 
         return PlayersState.builder()
         .currentPlayer(self)
-        .playingCards(List.copyOf(viewer.getPlayingCards()))
         .otherPlayers(otherPlayers)
         .build();
     
@@ -74,6 +83,14 @@ public class GameStateResolver {
 
     private PlayerOptions getPlayerOptions(GamePhase phase, Player viewer){
         return new PlayerOptions();
+    }
+
+    // ---  utils ---
+
+    public List<String> getCardsView(List<Card> cards){
+        return cards.stream()
+        .map(card -> card.getType().toString())
+        .toList();
     }
 
 }
