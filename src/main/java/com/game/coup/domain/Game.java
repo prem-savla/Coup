@@ -107,7 +107,7 @@ public class Game {
         
 
     }
-    public void startTargetedAction(@NonNull Player actor,@NonNull ActionType action,@NonNull Player target) {
+    public void startTargetedAction(@NonNull Player actor,@NonNull Player target ,@NonNull ActionType action) {
         if(gamePhase!=GamePhase.IDLE) throw new IllegalStateException(gamePhase.toString());
         createContext(actor, action, target);
         set1GamePhase();
@@ -143,7 +143,7 @@ public class Game {
 
     // --- Block challenge ---
 
-    public void challengeBlock(@NonNull Player blockChallenger) {
+    public void challengeBlockAction(@NonNull Player blockChallenger) {
         if(gamePhase!=GamePhase.BLOCK_CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
         ctx.setBlockChallenger(blockChallenger);
         Executioner.executeBlockChallenge(this);
@@ -151,7 +151,7 @@ public class Game {
         startReveal(loser);
     }
 
-    public void noChallengeBlock(){
+    public void noChallengeBlockAction(){
         if(gamePhase!=GamePhase.BLOCK_CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
         setGamePhase(GamePhase.RESOLVE);
     }
@@ -236,14 +236,14 @@ public class Game {
     }
 
     private void setGamePhase(GamePhase phase){
+        gamePhase = phase;
+        prevPhase = phase;
         if(phase == GamePhase.IDLE){
             nextTurn();
             destroyContext();
         }else if(phase == GamePhase.RESOLVE){
             executeAction();
         }
-        gamePhase = phase;
-        prevPhase = phase;
     }
 
     private void nextTurn() {

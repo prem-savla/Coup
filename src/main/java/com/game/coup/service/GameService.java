@@ -20,7 +20,8 @@ import org.springframework.stereotype.Service;
 public class GameService {
 
     private final RoomRepository roomRepository;
-    private final GameStateResolver gameStateResolver; // needs to be final ?
+    private final GameStateResolver gameStateResolver; 
+    private final GameMoveResolver gameMoveResolver;
  
     public GameStateResponse getGameState(String roomId, GameStateRequest request) {
 
@@ -35,14 +36,24 @@ public class GameService {
         );
 
         Player viewer = game.getPlayerByName(request.getPlayerName());
-        // non null?
+        
 
         return gameStateResolver.resolve(game, viewer); 
     }
 
     public GameMoveResponse processGameMove(String roomId, GameMoveRequest request){
-        // validation of the usage of the correct state and call game
-        return null;
+        
+        Room room =Objects.requireNonNull(
+                roomRepository.getRoom(roomId),
+                "Room not found"
+        );
+
+        Game game = Objects.requireNonNull(
+                room.getGame(),
+                "Game not started"
+        );
+
+        return gameMoveResolver.resolve(game, request); 
     }
 
     public GameDebugResponse getDebugState(String roomId) {

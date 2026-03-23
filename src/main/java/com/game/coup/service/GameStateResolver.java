@@ -30,7 +30,7 @@ public class GameStateResolver {
 
     public GameStateResponse resolve(@NonNull Game game,@NonNull Player viewer) {
 
-        if ( viewer.equals(Player.NONE)) throw new IllegalArgumentException("Invalid player");
+        if (viewer.equals(Player.NONE)) throw new IllegalArgumentException("Invalid player");
 
         GameState gameState = getGameState(game);
         PlayersState playersState = getPlayersState(game, viewer);
@@ -43,6 +43,7 @@ public class GameStateResolver {
     private GameState getGameState(Game game){
         if(game.getGamePhase() == GamePhase.IDLE){
             GameState state = GameState.builder()
+            .currentPlayer(game.getCurrentPlayer().getName())
             .phase(game.getGamePhase())
             .build();
             return state;
@@ -82,13 +83,13 @@ public class GameStateResolver {
         }
 
         return PlayersState.builder()
-        .currentPlayer(self)
+        .self(self)
         .otherPlayers(otherPlayers)
         .build();
     
     }
 
-    private PlayerOptions getPlayerOptions(Game game, Player viewer) {
+    public PlayerOptions getPlayerOptions(Game game, Player viewer) {
         GamePhase phase = game.getGamePhase();
 
         switch (phase) {
@@ -99,7 +100,6 @@ public class GameStateResolver {
                 PlayerOptions.blankOption();
 
             case CHALLENGE_WINDOW:
-                //all
                 return PlayerOptions.forResponses(buildChallengeResponses());
 
             case BLOCK_WINDOW:{
@@ -130,10 +130,10 @@ public class GameStateResolver {
                 PlayerOptions.blankOption();
 
             case RESOLVE:
-                return null;
+                PlayerOptions.blankOption();
 
             case GAME_OVER:
-                return null; // need to handle this & winner 
+                PlayerOptions.blankOption();
 
             default:
                 throw new IllegalStateException("Unhandled phase: " + phase);
@@ -190,14 +190,14 @@ public class GameStateResolver {
 
     private RevealOption buildRevealOption(Player viewer){
         return RevealOption.builder()
-        .validCards(getCardsView(viewer.getPlayingCards()))
+        .validCards(viewer.getPlayingCards())
         .build();
     }
 
      private ExchangeOption buildExchangeOption(Game game, Player viewer){
         return ExchangeOption.builder()
-        .drawnCards(getCardsView(game.getExchangeDrawnCards()))
-        .playingCards(getCardsView(viewer.getPlayingCards()))
+        .drawnCards(game.getExchangeDrawnCards())
+        .playingCards(viewer.getPlayingCards())
         .selectCount(viewer.getPlayingCards().size())
         .build();
     }

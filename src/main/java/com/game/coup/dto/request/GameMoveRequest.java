@@ -2,6 +2,8 @@ package com.game.coup.dto.request;
 
 import java.util.List;
 
+import com.game.coup.domain.model.Card;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
@@ -16,5 +18,9 @@ public class GameMoveRequest {
 
     private String target;
 
-    private List<String> cards;
+    private List<Card> drawnCards;
+    private List<Card> returnedCards;
+
+    private Card revealCard;
+
 }

@@ -10,7 +10,7 @@ public class Treasury {
     }
 
     public void giveCoins(Player player, int amount) {
-        if (amount <= 0) {
+        if (amount < 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
 
@@ -25,7 +25,7 @@ public class Treasury {
     }
 
     public void takeCoins(Player player, int amount) {
-        if (amount <= 0) {
+        if (amount < 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
 

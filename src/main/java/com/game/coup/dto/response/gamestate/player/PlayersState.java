@@ -11,7 +11,7 @@ import lombok.NonNull;
 public class PlayersState {
 
     @NonNull
-    private final PlayerInfo currentPlayer;
+    private final PlayerInfo self;
 
     @NonNull
     private final List<OtherPlayerInfo> otherPlayers;

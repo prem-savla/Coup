@@ -14,6 +14,8 @@ public class GameState {
     @NonNull
     private final GamePhase phase;
 
+    private final String currentPlayer;
+
     private final ActionType action;
     private final String actor;
     private final String target;

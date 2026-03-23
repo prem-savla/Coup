@@ -53,7 +53,7 @@ public class Player {
     public void addCoins(int amount) {
         ensureAlive();
 
-        if (amount <= 0) {
+        if (amount < 0) {
             throw new IllegalArgumentException("Amount must be positive.");
         }
 
@@ -63,7 +63,7 @@ public class Player {
     public void removeCoins(int amount) {
         ensureAlive();
 
-        if (amount <= 0) {
+        if (amount < 0) {
             throw new IllegalArgumentException("Amount must be positive.");
         }
 
