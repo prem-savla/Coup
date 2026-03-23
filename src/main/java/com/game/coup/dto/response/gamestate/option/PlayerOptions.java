@@ -40,4 +40,8 @@ public class PlayerOptions {
     public static PlayerOptions forExchange(ExchangeOption exchange) {
         return PlayerOptions.builder().exchange(exchange).build();
     }
+
+    public static PlayerOptions blankOption(){
+        return PlayerOptions.builder().build();
+    }
 }

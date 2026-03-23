@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ActionOption {
-    private final List<String> validActions;
+    private final List<String> validNonTargetedActions;
+    private final List<String> validTargetedActions;
     private final List<String> validTargets;
 }

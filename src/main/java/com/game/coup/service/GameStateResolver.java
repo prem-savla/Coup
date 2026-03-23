@@ -11,6 +11,7 @@ import com.game.coup.domain.definitions.ActionType;
 import com.game.coup.domain.definitions.GamePhase;
 import com.game.coup.domain.model.Card;
 import com.game.coup.domain.model.Player;
+import com.game.coup.domain.turn.TurnContext;
 import com.game.coup.dto.response.gamestate.GameStateResponse;
 import com.game.coup.dto.response.gamestate.game.GameState;
 import com.game.coup.dto.response.gamestate.option.ActionOption;
@@ -93,28 +94,46 @@ public class GameStateResolver {
         switch (phase) {
 
             case IDLE:
-                return PlayerOptions.forActions(buildActionOptions(game, viewer));
+                return viewer.equals(game.getCurrentPlayer())?
+                PlayerOptions.forActions(buildActionOptions(game, viewer)):
+                PlayerOptions.blankOption();
 
             case CHALLENGE_WINDOW:
+                //all
                 return PlayerOptions.forResponses(buildChallengeResponses());
 
-            case BLOCK_WINDOW:
-                return PlayerOptions.forResponses(buildBlockResponses());
+            case BLOCK_WINDOW:{
+                    TurnContext ctx = game.getTurnContext();
+                    ActionType action = ctx.getAction();
+                    Player blocker = ctx.getBlocker();
 
+                    if(action.equals(ActionType.STEAL) || action.equals(ActionType.ASSASSINATE))
+                        return viewer.equals(blocker)?
+                        PlayerOptions.forResponses(buildBlockResponses()):
+                        PlayerOptions.blankOption();
+                    else if(action.equals(ActionType.FOREIGN_AID))
+                        return PlayerOptions.forResponses(buildBlockResponses());
+                    else
+                        throw new IllegalStateException("Wrong action for block window:");
+                }
+                
             case BLOCK_CHALLENGE_WINDOW:
                 return PlayerOptions.forResponses(buildBlockChallengeResponses());
 
             case REVEAL:
-                return PlayerOptions.forReveal(buildRevealOption(viewer));
-
+                return viewer.equals(game.getRevealPlayer())?
+                PlayerOptions.forReveal(buildRevealOption(viewer)):
+                PlayerOptions.blankOption();
             case EXCHANGE:
-                return PlayerOptions.forExchange(buildExchangeOption(game, viewer));
+                return viewer.equals(game.getCurrentPlayer())?
+                PlayerOptions.forExchange(buildExchangeOption(game, viewer)):
+                PlayerOptions.blankOption();
 
             case RESOLVE:
                 return null;
 
             case GAME_OVER:
-                return null; // need to handle this & winner
+                return null; // need to handle this & winner 
 
             default:
                 throw new IllegalStateException("Unhandled phase: " + phase);
@@ -132,11 +151,22 @@ public class GameStateResolver {
         .map(ActionType::name)
         .toList();
 
-        List<String> validTargets = getPlayerView(game.getAlivePlayers());// remove self 
+        List<String> nonTargetedActions = validActions.stream()
+            .filter(a -> !ActionType.valueOf(a).targeted)
+            .toList();
+
+        List<String> validTargetedActions = validActions.stream()
+            .filter(a -> ActionType.valueOf(a).targeted)
+            .toList();
+
+        List<String> targets = getPlayerView(game.getAlivePlayers().stream()
+            .filter(p -> p != viewer)
+            .toList());
 
         return ActionOption.builder()
-        .validActions(validActions)
-        .validTargets(validTargets)
+        .validNonTargetedActions(nonTargetedActions)
+        .validTargetedActions(validTargetedActions)
+        .validTargets(targets)
         .build();
     }
 
@@ -166,7 +196,7 @@ public class GameStateResolver {
 
      private ExchangeOption buildExchangeOption(Game game, Player viewer){
         return ExchangeOption.builder()
-        .drawnCards(null)
+        .drawnCards(getCardsView(game.getExchangeDrawnCards()))
         .playingCards(getCardsView(viewer.getPlayingCards()))
         .selectCount(viewer.getPlayingCards().size())
         .build();

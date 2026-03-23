@@ -24,7 +24,10 @@ public class Game {
     private int currentTurnIndex;
 
     private GamePhase gamePhase;
-    private GamePhase prevPhase; // used to resolve the reveal action
+    private GamePhase prevPhase; 
+
+    private Player revealPlayer;
+    private List<Card> exchangeDrawnCards;
 
 
     public Game(List<Player> players){
@@ -62,6 +65,10 @@ public class Game {
     public TurnContext getTurnContext() {return ctx;}
 
     public GamePhase getGamePhase(){return gamePhase;}
+
+    public Player getRevealPlayer(){return revealPlayer;}
+
+    public List<Card> getExchangeDrawnCards(){return exchangeDrawnCards;}
 
     public Player getCurrentPlayer() {return players.get(currentTurnIndex);}
 
@@ -151,15 +158,15 @@ public class Game {
 
     // --- Reveal ---
 
-    private String startReveal(Player player){
+    private void startReveal(Player player){
         gamePhase = GamePhase.REVEAL;
-        return player.getName();
-        // call game service 
+        revealPlayer = player;
     }
 
     public void executeReveal(Player player, Card revealedCard){
         if(gamePhase != GamePhase.REVEAL) throw new IllegalStateException(gamePhase.toString());
         player.revealCard(revealedCard);
+        revealPlayer = Player.NONE;
 
         switch (prevPhase) {
             case CHALLENGE_WINDOW:
@@ -179,16 +186,16 @@ public class Game {
 
     // --- Exchange action ---
 
-    private List<Card>  startExchange() {
+    private void startExchange() {
         setGamePhase(GamePhase.EXCHANGE);
-        return deck.dealCards(2);
-        //call game service 
+        exchangeDrawnCards = deck.dealCards(2);
     }
 
     public void executeExchange(List<Card> cardsDrawn, List<Card> cardsReturned){
         if(gamePhase != GamePhase.EXCHANGE) throw new IllegalStateException(gamePhase.toString());
         ctx.getActor().exchangeCards(cardsDrawn, cardsReturned);
         deck.returnCards(cardsReturned);
+        exchangeDrawnCards = null;
         setGamePhase(GamePhase.IDLE);
     }
 
