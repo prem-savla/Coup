@@ -6,7 +6,6 @@ import com.game.coup.domain.model.Player;
 import com.game.coup.dto.debug.GameDebugResponse;
 import com.game.coup.dto.request.GameMoveRequest;
 import com.game.coup.dto.request.GameStateRequest;
-import com.game.coup.dto.response.GameMoveResponse;
 import com.game.coup.dto.response.gamestate.GameStateResponse;
 import com.game.coup.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class GameService {
         return gameStateResolver.resolve(game, viewer); 
     }
 
-    public GameMoveResponse processGameMove(String roomId, GameMoveRequest request){
+    public GameStateResponse processGameMove(String roomId, GameMoveRequest request){
         
         Room room =Objects.requireNonNull(
                 roomRepository.getRoom(roomId),

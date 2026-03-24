@@ -33,12 +33,12 @@ public class PlayerOptions {
         return PlayerOptions.builder().responses(responses).build();
     }
 
-    public static PlayerOptions forReveal(RevealOption reveal) {
-        return PlayerOptions.builder().reveal(reveal).build();
+    public static PlayerOptions forReveal(RevealOption reveal, ResponseOption responses) {
+        return PlayerOptions.builder().reveal(reveal).responses(responses).build();
     }
 
-    public static PlayerOptions forExchange(ExchangeOption exchange) {
-        return PlayerOptions.builder().exchange(exchange).build();
+    public static PlayerOptions forExchange(ExchangeOption exchange, ResponseOption responses) {
+        return PlayerOptions.builder().exchange(exchange).responses(responses).build();
     }
 
     public static PlayerOptions blankOption(){

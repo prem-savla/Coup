@@ -3,7 +3,6 @@ package com.game.coup.controller;
 import com.game.coup.dto.debug.GameDebugResponse;
 import com.game.coup.dto.request.GameMoveRequest;
 import com.game.coup.dto.request.GameStateRequest;
-import com.game.coup.dto.response.GameMoveResponse;
 import com.game.coup.dto.response.gamestate.GameStateResponse;
 import com.game.coup.service.GameService;
 
@@ -27,7 +26,7 @@ public class GameController {
     }
 
     @PostMapping("/{roomId}/move")
-    public GameMoveResponse processMove(
+    public GameStateResponse processMove(
             @PathVariable String roomId,
             @Valid @RequestBody GameMoveRequest request
     ) {
