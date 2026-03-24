@@ -51,6 +51,7 @@ public class GameStateResolver {
         
         GameState state = GameState.builder()
         .phase(game.getGamePhase())
+        .currentPlayer(game.getCurrentPlayer().getName())
         .action(game.getTurnContext().getAction())
         .actor(game.getTurnContext().getActor().getName())
         .target(game.getTurnContext().getTarget().getName())
@@ -100,7 +101,9 @@ public class GameStateResolver {
                 PlayerOptions.blankOption();
 
             case CHALLENGE_WINDOW:
-                return PlayerOptions.forResponses(buildChallengeResponses());
+                return viewer.equals(game.getTurnContext().getActor())?
+                PlayerOptions.blankOption():
+                PlayerOptions.forResponses(buildChallengeResponses());
 
             case BLOCK_WINDOW:{
                     TurnContext ctx = game.getTurnContext();
@@ -114,19 +117,21 @@ public class GameStateResolver {
                     else if(action.equals(ActionType.FOREIGN_AID))
                         return PlayerOptions.forResponses(buildBlockResponses());
                     else
-                        throw new IllegalStateException("Wrong action for block window:");
+                        throw new IllegalStateException("Wrong action for: " + phase);
                 }
                 
             case BLOCK_CHALLENGE_WINDOW:
-                return PlayerOptions.forResponses(buildBlockChallengeResponses());
+                return viewer.equals(game.getTurnContext().getBlocker())?
+                PlayerOptions.blankOption():
+                PlayerOptions.forResponses(buildBlockChallengeResponses());
 
             case REVEAL:
                 return viewer.equals(game.getRevealPlayer())?
-                PlayerOptions.forReveal(buildRevealOption(viewer)):
+                PlayerOptions.forReveal(buildRevealOption(viewer),buildRevealResponse()):
                 PlayerOptions.blankOption();
             case EXCHANGE:
                 return viewer.equals(game.getCurrentPlayer())?
-                PlayerOptions.forExchange(buildExchangeOption(game, viewer)):
+                PlayerOptions.forExchange(buildExchangeOption(game, viewer), buildExchangeResponse()):
                 PlayerOptions.blankOption();
 
             case RESOLVE:
@@ -194,11 +199,22 @@ public class GameStateResolver {
         .build();
     }
 
+    private ResponseOption buildRevealResponse(){
+        return ResponseOption.builder()
+        .validResponses(List.of("REVEAL"))
+        .build();
+    }
+
      private ExchangeOption buildExchangeOption(Game game, Player viewer){
         return ExchangeOption.builder()
         .drawnCards(game.getExchangeDrawnCards())
         .playingCards(viewer.getPlayingCards())
         .selectCount(viewer.getPlayingCards().size())
+        .build();
+    }
+    private ResponseOption buildExchangeResponse(){
+        return ResponseOption.builder()
+        .validResponses(List.of("SWAP_CARDS"))
         .build();
     }
 

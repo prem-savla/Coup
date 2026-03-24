@@ -1,5 +1,6 @@
 package com.game.coup.domain;
 
+import java.util.HashSet;
 import java.util.List;
 
 import com.game.coup.domain.model.Card;
@@ -28,6 +29,7 @@ public class Game {
 
     private Player revealPlayer;
     private List<Card> exchangeDrawnCards;
+    private HashSet<Player> respondedPlayers = new HashSet<>();
 
 
     public Game(List<Player> players){
@@ -123,9 +125,10 @@ public class Game {
         startReveal(loser);  
     }
 
-    public void noChallengeAction(){
+    public void noChallengeAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
-        set2GamePhase();
+        if(respondedPlayers.size() == players.size()-2)set2GamePhase();
+        else respondedPlayers.add(responder);
     }
 
     // --- Block ---
@@ -136,9 +139,10 @@ public class Game {
         setGamePhase(GamePhase.BLOCK_CHALLENGE_WINDOW);
     }
 
-    public void noBlockAction(){
+    public void noBlockAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.BLOCK_WINDOW) throw new IllegalStateException(gamePhase.toString());
-        setGamePhase(GamePhase.RESOLVE);
+        if(respondedPlayers.size() == players.size()-2)setGamePhase(GamePhase.RESOLVE);
+        else respondedPlayers.add(responder);
     }
 
     // --- Block challenge ---
@@ -151,9 +155,10 @@ public class Game {
         startReveal(loser);
     }
 
-    public void noChallengeBlockAction(){
+    public void noChallengeBlockAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.BLOCK_CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
-        setGamePhase(GamePhase.RESOLVE);
+        if(respondedPlayers.size() == players.size()-2)setGamePhase(GamePhase.RESOLVE);
+        else respondedPlayers.add(responder);
     }
 
     // --- Reveal ---
@@ -166,7 +171,6 @@ public class Game {
     public void executeReveal(Player player, Card revealedCard){
         if(gamePhase != GamePhase.REVEAL) throw new IllegalStateException(gamePhase.toString());
         player.revealCard(revealedCard);
-        revealPlayer = Player.NONE;
 
         switch (prevPhase) {
             case CHALLENGE_WINDOW:
@@ -180,7 +184,7 @@ public class Game {
                 setGamePhase(GamePhase.IDLE);
                 break;
             default:
-                break;
+                throw new IllegalStateException(prevPhase.toString());
         }
     }
 
@@ -195,7 +199,6 @@ public class Game {
         if(gamePhase != GamePhase.EXCHANGE) throw new IllegalStateException(gamePhase.toString());
         ctx.getActor().exchangeCards(cardsDrawn, cardsReturned);
         deck.returnCards(cardsReturned);
-        exchangeDrawnCards = null;
         setGamePhase(GamePhase.IDLE);
     }
 
@@ -203,7 +206,7 @@ public class Game {
 
     private void executeAction(){
         if(gamePhase != GamePhase.RESOLVE) throw new IllegalStateException(gamePhase.toString());
-
+        Executioner.executeAction(this);
         switch (ctx.getAction()) {
             case EXCHANGE:
                 startExchange();
@@ -215,7 +218,6 @@ public class Game {
                 startReveal(ctx.getTarget());
                 break;
             default:
-                Executioner.executeAction(this);
                 setGamePhase(GamePhase.IDLE);
                 break;
         }
@@ -238,6 +240,9 @@ public class Game {
     private void setGamePhase(GamePhase phase){
         gamePhase = phase;
         prevPhase = phase;
+        exchangeDrawnCards=null;
+        respondedPlayers.clear();
+        revealPlayer = Player.NONE;
         if(phase == GamePhase.IDLE){
             nextTurn();
             destroyContext();

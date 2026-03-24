@@ -10,7 +10,7 @@ import com.game.coup.domain.definitions.GamePhase;
 import com.game.coup.domain.model.Card;
 import com.game.coup.domain.model.Player;
 import com.game.coup.dto.request.GameMoveRequest;
-import com.game.coup.dto.response.GameMoveResponse;
+import com.game.coup.dto.response.gamestate.GameStateResponse;
 import com.game.coup.dto.response.gamestate.option.PlayerOptions;
 
 import lombok.RequiredArgsConstructor;
@@ -38,77 +38,128 @@ public class GameMoveResolver {
 
     private final GameStateResolver gameStateResolver;
     
-    public GameMoveResponse resolve(Game game,  GameMoveRequest request) {
+    public GameStateResponse resolve(Game game,  GameMoveRequest request) {
         Player viewer = game.getPlayerByName(request.getPlayerName());
         PlayerOptions options = gameStateResolver.getPlayerOptions(game, viewer);
+        int count = options.getExchange()!=null?options.getExchange().getSelectCount():0;
         GamePhase phase = game.getGamePhase();
+
         String choice = request.getChoice();
         String target = request.getTarget();
         Card revealCard = request.getRevealCard();
         List<Card> drawnCards = request.getDrawnCards();
         List<Card> returnedCards = request.getReturnedCards();
 
+        boolean executed = false;
 
         switch (choice) {
             case INCOME:
-                if(options.getActions().getValidNonTargetedActions().contains(INCOME)) game.startAction(viewer, ActionType.INCOME);
+                if(options.getActions().getValidNonTargetedActions().contains(INCOME)) {
+                    game.startAction(viewer, ActionType.INCOME);
+                    executed = true;
+                }
                 break;
             case FOREIGN_AID:
-                if(options.getActions().getValidNonTargetedActions().contains(FOREIGN_AID)) game.startAction(viewer, ActionType.FOREIGN_AID);
+                if(options.getActions().getValidNonTargetedActions().contains(FOREIGN_AID)){ 
+                    game.startAction(viewer, ActionType.FOREIGN_AID);
+                    executed = true;
+                }
                 break;
             case STEAL:
                 if(options.getActions().getValidNonTargetedActions().contains(STEAL) 
-                    && options.getActions().getValidTargets().contains(target)) 
-                game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.STEAL);
+                 && options.getActions().getValidTargets().contains(target)) {
+                    game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.STEAL);
+                    executed = true;
+                }
                 break;
             case TAX:
-                if(options.getActions().getValidNonTargetedActions().contains(TAX))  game.startAction(viewer, ActionType.TAX);
+                if(options.getActions().getValidNonTargetedActions().contains(TAX)){
+                    game.startAction(viewer, ActionType.TAX);
+                    executed = true;
+                }
                 break;
             case ASSASSINATE:
                 if(options.getActions().getValidNonTargetedActions().contains(ASSASSINATE) 
-                    && options.getActions().getValidTargets().contains(target)) 
-                game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.ASSASSINATE);
+                && options.getActions().getValidTargets().contains(target)){ 
+                    game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.ASSASSINATE);
+                    executed = true;
+                }
                 break;
             case EXCHANGE:
-                if(options.getActions().getValidNonTargetedActions().contains(EXCHANGE)) game.startAction(viewer, ActionType.EXCHANGE);
+                if(options.getActions().getValidNonTargetedActions().contains(EXCHANGE)) {
+                    game.startAction(viewer, ActionType.EXCHANGE);
+                    executed = true;
+                }
                 break;
             case COUP:
                 if(options.getActions().getValidNonTargetedActions().contains(COUP) 
-                    && options.getActions().getValidTargets().contains(target)) 
-                game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.COUP);
+                && options.getActions().getValidTargets().contains(target)){
+                    game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.COUP);
+                    executed = true;
+                }
                 break;
             case CHALLENGE:
-                if(options.getResponses().getValidResponses().contains(CHALLENGE)) game.challengeAction(viewer);
+                if(options.getResponses().getValidResponses().contains(CHALLENGE)){
+                     game.challengeAction(viewer);
+                    executed = true;
+                }
             case BLOCK:
-                if(options.getResponses().getValidResponses().contains(BLOCK)) game.blockAction(viewer);
+                if(options.getResponses().getValidResponses().contains(BLOCK)){
+                    game.blockAction(viewer);
+                    executed = true;
+                }
                 break;
             case CHALLENGE_BLOCK:
-                if(options.getResponses().getValidResponses().contains(CHALLENGE_BLOCK)) game.challengeBlockAction(viewer);
+                if(options.getResponses().getValidResponses().contains(CHALLENGE_BLOCK)){
+                    game.challengeBlockAction(viewer);
+                    executed = true;
+                }
                 break;
             case SWAP_CARDS:
-                if(exchangeHelper(options,viewer,game,drawnCards,returnedCards)) game.executeExchange(drawnCards, returnedCards);
+                if(options.getResponses().getValidResponses().contains(SWAP_CARDS) &&drawnCards.size()>count) {
+                    game.executeExchange(drawnCards, returnedCards);
+                    executed = true;
+                }
                 break;
             case REVEAL:
-                if(options.getReveal().getValidCards().contains(revealCard)) game.executeReveal(viewer, revealCard);
+                if(options.getResponses().getValidResponses().contains(REVEAL)  && options.getReveal().getValidCards().contains(revealCard)) {
+                    game.executeReveal(viewer, revealCard);
+                    executed = true;
+                }
                 break;
             case PASS:
-                // if all pass then only move to next state
+                switch (phase) {
+                    case CHALLENGE_WINDOW:
+                        if(options.getResponses().getValidResponses().contains(PASS)) {
+                            game.noChallengeAction(viewer);
+                            executed = true;
+                        }
+                        break;
+                    case BLOCK_WINDOW:
+                        if(options.getResponses().getValidResponses().contains(PASS)){ 
+                            game.noBlockAction(viewer); 
+                            executed = true;
+                        }
+                        break;
+                    case BLOCK_CHALLENGE_WINDOW:
+                        if(options.getResponses().getValidResponses().contains(PASS)) {
+                            game.noChallengeBlockAction(viewer);
+                            executed = true;
+                        }
+                        break;   
+                    default:
+                        break;
+                }
                 break;
         
             default:
-                break;
+                throw new IllegalStateException("Unhandeled State: "+ choice);
         }
 
+        if (!executed) throw new IllegalArgumentException("Invalid move: " + choice);
         
-        return null;
+        return gameStateResolver.resolve(game, viewer);
 
     }
 
-    // --- helper ---
-    private boolean exchangeHelper(PlayerOptions options, Player viewer, Game game, List<Card> drawnCards, List<Card> returnedCards){
-        
-        return true;
-    }
-    
-    /// need to verify target  other list non null 
 }
