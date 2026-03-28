@@ -28,7 +28,7 @@ public class Game {
     private GamePhase prevPhase; 
 
     private Player revealPlayer;
-    private List<Card> exchangeDrawnCards;
+    private List<Card> exchangeCardsOption;
     private HashSet<Player> respondedPlayers = new HashSet<>();
 
 
@@ -70,7 +70,7 @@ public class Game {
 
     public Player getRevealPlayer(){return revealPlayer;}
 
-    public List<Card> getExchangeDrawnCards(){return exchangeDrawnCards;}
+    public List<Card> getexchangeCardsOption(){return exchangeCardsOption;}
 
     public Player getCurrentPlayer() {return players.get(currentTurnIndex);}
 
@@ -197,13 +197,12 @@ public class Game {
 
     private void startExchange() {
         setGamePhase(GamePhase.EXCHANGE);
-        exchangeDrawnCards = deck.dealCards(2);
+        exchangeCardsOption = deck.dealCards(2);
     }
 
-    public void executeExchange(List<Card> cardsDrawn, List<Card> cardsReturned){
+    public void executeExchange(List<Card> cardsKept, List<Card> cardsReturned){
         if(gamePhase != GamePhase.EXCHANGE) throw new IllegalStateException(gamePhase.toString());
-        ctx.getActor().exchangeCards(cardsDrawn, cardsReturned);
-        deck.returnCards(cardsReturned);
+        Executioner.executeExchange(this,cardsKept, cardsReturned);
         setGamePhase(GamePhase.IDLE);
     }
 
@@ -245,7 +244,7 @@ public class Game {
     private void setGamePhase(GamePhase phase){
         gamePhase = phase;
         prevPhase = phase;
-        exchangeDrawnCards=null;
+        exchangeCardsOption=null;
         respondedPlayers.clear();
         revealPlayer = Player.NONE;
         if(phase == GamePhase.IDLE){

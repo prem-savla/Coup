@@ -94,11 +94,11 @@ public class Player {
         playingCards.addAll(cards);
     }
 
-    public void exchangeCards(List<Card> cardsDrawn, List<Card> cardsReturned){
+    public void exchangeCards(List<Card> cardsKept, List<Card> cardsReturned){
         ensureAlive();
-        if (cardsDrawn == null || cardsDrawn.isEmpty()) throw new IllegalArgumentException("Cards taken cannot be null or empty.");
+        if (cardsKept == null || cardsKept.isEmpty()) throw new IllegalArgumentException("Cards taken cannot be null or empty.");
         if (cardsReturned == null || cardsReturned.isEmpty()) throw new IllegalArgumentException("Cards released cannot be null or empty.");
-        if (cardsDrawn.size() != cardsReturned.size()  ) throw new IllegalArgumentException("Cards taken and released should be same");
+        if (cardsKept.size() != cardsReturned.size()  ) throw new IllegalArgumentException("Cards taken and released should be same");
 
         int originalCount = playingCards.size();
         
@@ -107,7 +107,7 @@ public class Player {
             if (!removed) throw new IllegalStateException("Cannot release card not owned by player: " + card.getId());
         }
         
-        for (Card card : cardsDrawn) {
+        for (Card card : cardsKept) {
             if (playingCards.contains(card) || cardsReturned.contains(card)) throw new IllegalStateException("Cannot take a card already owned and not released: ");
             playingCards.add(card);  
         }

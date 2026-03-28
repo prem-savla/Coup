@@ -18,8 +18,8 @@ public class GameMoveRequest {
 
     private String target;
 
-    private List<Card> drawnCards;
-    private List<Card> returnedCards;
+    private List<Card> cardsKept;
+    private List<Card> cardsReturned;
 
     private Card revealCard;
 

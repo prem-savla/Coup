@@ -210,7 +210,7 @@ public class GameStateResolver {
 
      private ExchangeOption buildExchangeOption(Game game, Player viewer){
         return ExchangeOption.builder()
-        .drawnCards(game.getExchangeDrawnCards())
+        .drawnCards(game.getexchangeCardsOption())
         .playingCards(viewer.getPlayingCards())
         .selectCount(viewer.getPlayingCards().size())
         .build();
