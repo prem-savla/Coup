@@ -5,7 +5,6 @@ import com.game.coup.domain.Room;
 import com.game.coup.domain.model.Player;
 import com.game.coup.dto.debug.GameDebugResponse;
 import com.game.coup.dto.request.GameMoveRequest;
-import com.game.coup.dto.request.GameStateRequest;
 import com.game.coup.dto.response.gamestate.GameStateResponse;
 import com.game.coup.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ public class GameService {
     private final GameStateResolver gameStateResolver; 
     private final GameMoveResolver gameMoveResolver;
  
-    public GameStateResponse getGameState(String roomId, GameStateRequest request) {
+    public GameStateResponse getGameState(String roomId, String playerName) {
 
        Room room =Objects.requireNonNull(
                 roomRepository.getRoom(roomId),
@@ -34,7 +33,7 @@ public class GameService {
                 "Game not started"
         );
 
-        Player viewer = game.getPlayerByName(request.getPlayerName());
+        Player viewer = game.getPlayerByName(playerName);
         
 
         return gameStateResolver.resolve(game, viewer); 

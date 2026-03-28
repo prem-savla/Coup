@@ -115,7 +115,9 @@ public class GameStateResolver {
                         PlayerOptions.forResponses(buildBlockResponses()):
                         PlayerOptions.blankOption();
                     else if(action.equals(ActionType.FOREIGN_AID))
-                        return PlayerOptions.forResponses(buildBlockResponses());
+                        return viewer.equals(game.getTurnContext().getActor())?
+                        PlayerOptions.blankOption():
+                        PlayerOptions.forResponses(buildBlockResponses());
                     else
                         throw new IllegalStateException("Wrong action for: " + phase);
                 }
@@ -135,10 +137,10 @@ public class GameStateResolver {
                 PlayerOptions.blankOption();
 
             case RESOLVE:
-                PlayerOptions.blankOption();
+                return PlayerOptions.blankOption();
 
             case GAME_OVER:
-                PlayerOptions.blankOption();
+                return PlayerOptions.blankOption();
 
             default:
                 throw new IllegalStateException("Unhandled phase: " + phase);

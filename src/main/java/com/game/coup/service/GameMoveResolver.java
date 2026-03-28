@@ -66,7 +66,7 @@ public class GameMoveResolver {
                 }
                 break;
             case STEAL:
-                if(options.getActions().getValidNonTargetedActions().contains(STEAL) 
+                if(options.getActions().getValidTargetedActions().contains(STEAL) 
                  && options.getActions().getValidTargets().contains(target)) {
                     game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.STEAL);
                     executed = true;
@@ -79,7 +79,7 @@ public class GameMoveResolver {
                 }
                 break;
             case ASSASSINATE:
-                if(options.getActions().getValidNonTargetedActions().contains(ASSASSINATE) 
+                if(options.getActions().getValidTargetedActions().contains(ASSASSINATE) 
                 && options.getActions().getValidTargets().contains(target)){ 
                     game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.ASSASSINATE);
                     executed = true;
@@ -92,7 +92,7 @@ public class GameMoveResolver {
                 }
                 break;
             case COUP:
-                if(options.getActions().getValidNonTargetedActions().contains(COUP) 
+                if(options.getActions().getValidTargetedActions().contains(COUP) 
                 && options.getActions().getValidTargets().contains(target)){
                     game.startTargetedAction(viewer, game.getPlayerByName(target), ActionType.COUP);
                     executed = true;
@@ -100,9 +100,10 @@ public class GameMoveResolver {
                 break;
             case CHALLENGE:
                 if(options.getResponses().getValidResponses().contains(CHALLENGE)){
-                     game.challengeAction(viewer);
+                    game.challengeAction(viewer);
                     executed = true;
                 }
+                break;
             case BLOCK:
                 if(options.getResponses().getValidResponses().contains(BLOCK)){
                     game.blockAction(viewer);
@@ -116,7 +117,7 @@ public class GameMoveResolver {
                 }
                 break;
             case SWAP_CARDS:
-                if(options.getResponses().getValidResponses().contains(SWAP_CARDS) &&drawnCards.size()>count) {
+                if(options.getResponses().getValidResponses().contains(SWAP_CARDS) &&drawnCards.size()>=count) {
                     game.executeExchange(drawnCards, returnedCards);
                     executed = true;
                 }

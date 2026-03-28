@@ -16,7 +16,7 @@ public class RoomRepository {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public Room createRoom(String owner) {
-        String roomId = generateRoomId(true);
+        String roomId = generateRoomId();
         Room room = new Room(roomId, owner);
         if (rooms.putIfAbsent(roomId, room) != null) {
             throw new IllegalStateException("Room already exists: " + roomId);
@@ -38,8 +38,7 @@ public class RoomRepository {
         }
     } 
     
-    private String generateRoomId(boolean test) {
-        if(test) return "ABCD";
+    private String generateRoomId() {
         while (true) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < 4; i++) sb.append(CHARACTERS.charAt(random.nextInt(26)));

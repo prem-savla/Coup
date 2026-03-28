@@ -127,8 +127,8 @@ public class Game {
 
     public void noChallengeAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
-        if(respondedPlayers.size() == players.size()-2)set2GamePhase();
-        else respondedPlayers.add(responder);
+        respondedPlayers.add(responder);
+        if(respondedPlayers.size() == players.size()-1)set2GamePhase();
     }
 
     // --- Block ---
@@ -141,8 +141,8 @@ public class Game {
 
     public void noBlockAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.BLOCK_WINDOW) throw new IllegalStateException(gamePhase.toString());
-        if(respondedPlayers.size() == players.size()-2)setGamePhase(GamePhase.RESOLVE);
-        else respondedPlayers.add(responder);
+        respondedPlayers.add(responder);
+        if(respondedPlayers.size() == players.size()-1)setGamePhase(GamePhase.RESOLVE);
     }
 
     // --- Block challenge ---
@@ -157,8 +157,8 @@ public class Game {
 
     public void noChallengeBlockAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.BLOCK_CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
-        if(respondedPlayers.size() == players.size()-2)setGamePhase(GamePhase.RESOLVE);
-        else respondedPlayers.add(responder);
+        respondedPlayers.add(responder);
+        if(respondedPlayers.size() == players.size()-1)setGamePhase(GamePhase.RESOLVE);
     }
 
     // --- Reveal ---
