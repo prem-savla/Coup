@@ -72,12 +72,11 @@ public class Executioner {
         
         for(Card card: cardsReturned)
             if(actor.getPlayingCards().contains(card)) finalCardsReturned.add(card);
-            
-        deck.returnCards(cardsReturned);
-        if( finalCardsKept.isEmpty() && cardsKept.isEmpty() ) return;
-        if( finalCardsKept.isEmpty() || cardsKept.isEmpty() || finalCardsKept.size()!=cardsKept.size()) throw new IllegalStateException("Invalid exchange");
-        actor.exchangeCards(finalCardsKept, finalCardsReturned);
         
+        deck.returnCards(cardsReturned);
+        if( finalCardsKept.isEmpty() && finalCardsReturned.isEmpty() ) return;
+        if( finalCardsKept.isEmpty() || finalCardsReturned.isEmpty() ) throw new IllegalStateException("Invalid exchange");
+        actor.exchangeCards(finalCardsKept, finalCardsReturned);        
     }
     
     public static void executeAction(Game game) {

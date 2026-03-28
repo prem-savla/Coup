@@ -1388,7 +1388,7 @@ function toggleExc(playerName, cardId) {
 
 function submitExchange(playerName) {
   const slot = A.myPlayers.find(s => s.name === playerName); if (!slot) return;
-  const cardsKept   = slot.excDrawn.map(c => ({ type:c.type, id:c.id }));
+  const cardsKept   = slot.excPool.filter(c => slot.excKeep.has(c.id)).map(c => ({ type:c.type, id:c.id }));
   const cardsReturned = slot.excPool.filter(c => !slot.excKeep.has(c.id)).map(c => ({ type:c.type, id:c.id }));
   submitMove(playerName, { choice:'SWAP_CARDS', cardsKept, cardsReturned });
 }
