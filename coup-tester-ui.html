@@ -296,7 +296,7 @@ body {
 .game-grid {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: 1fr 156px;
+  grid-template-rows: 1fr 240px;
   height: 100%;
 }
 
@@ -316,6 +316,7 @@ body {
   width: 290px;
   flex-shrink: 0;
   overflow-y: auto;
+  max-height: 100%;
   padding: 16px;
   border-right: 1px solid var(--border);
 }
@@ -523,22 +524,6 @@ body {
 .card-chip.CONTESSA   { background: var(--contessa-bg);border-color: var(--contessa-bd);color: var(--contessa-tx); }
 .card-chip.hidden     { background: rgba(40,32,22,.5); border-color: var(--border2); color: var(--muted); font-style:italic; }
 .card-chip.revealed   { background: rgba(10,8,6,.6);   border-color: var(--muted);   color: var(--muted); text-decoration: line-through; }
-
-/* ─── DEBUG SECTION ─── */
-.debug-section {
-  margin-top: 14px;
-  padding: 12px 14px;
-  background: rgba(201,168,76,.04);
-  border: 1px dashed var(--gold-dim);
-}
-.debug-title {
-  font-family: 'Cinzel', serif;
-  font-size: 8px;
-  letter-spacing: .3em;
-  color: var(--gold-dim);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
 
 /* ═══════════════════════════════════════ OPTIONS ══ */
 .opts-status {
@@ -752,7 +737,7 @@ body {
       <input id="inp-name" type="text" placeholder="Enter player name" autocomplete="off" />
     </div>
     <div class="field">
-      <label>Room ID <span style="color:var(--muted);font-style:italic;">(leave blank to create)</span></label>
+      <label>Room ID <span style="color:var(--muted);font-style:italic;">(to join an existing room)</span></label>
       <input id="inp-room" type="text" placeholder="e.g. ABCD" style="text-transform:uppercase" autocomplete="off" />
     </div>
     <div class="field">
@@ -805,7 +790,6 @@ body {
   <div class="bar-room">ROOM&nbsp;<span id="bar-room">—</span></div>
   <div class="bar-spacer"></div>
   <button class="bar-btn" onclick="fetchAllStates()">↻ Refresh</button>
-  <button class="bar-btn" id="debug-btn" onclick="toggleDebug()">Debug</button>
   <button class="bar-btn danger" onclick="doLeave()">Leave</button>
 </div>
 
@@ -842,8 +826,6 @@ const A = {
   allPlayers: [],        // all players in room (public list)
   myPlayers:  [],        // players this browser controls: [{ name, lastState, pendingAction, excPool, excDrawn, excKeep, excCount }]
   stateViewPlayer: null, // which player's perspective the state panel shows
-  debugMode:  false,
-  debugData:  null,
 };
 
 const NEEDS_TARGET = new Set(['COUP', 'STEAL', 'ASSASSINATE']);
@@ -906,7 +888,7 @@ function addLog(msg, type = 'error') {
   const t = new Date().toTimeString().slice(0,8);
   row.innerHTML = `<span class="log-time">${t}</span><span class="log-msg ${type}">${msg}</span>`;
   body.prepend(row);
-  while (body.children.length > 60) body.removeChild(body.lastChild);
+  while (body.children.length > 120) body.removeChild(body.lastChild);
 }
 
 // ─────────────────────────────── API ────────────
@@ -1090,28 +1072,6 @@ async function fetchAllStates() {
   const viewState = viewSlot?.lastState || anyState;
   if (viewState) renderState(viewState);
   renderAllPlayerCols();
-  if (A.debugMode) fetchDebug();
-}
-
-async function fetchDebug() {
-  try {
-    const d = await call('GET', `/api/${A.roomId}/debug`);
-    A.debugData = d;
-    const viewSlot = A.myPlayers.find(s => s.name === A.stateViewPlayer) || A.myPlayers[0];
-    const viewState = viewSlot?.lastState;
-    if (viewState) renderState(viewState);
-  } catch(_) {}
-}
-
-function toggleDebug() {
-  A.debugMode = !A.debugMode;
-  ge('debug-btn').classList.toggle('on', A.debugMode);
-  if (A.debugMode) fetchDebug();
-  else {
-    A.debugData = null;
-    const viewSlot = A.myPlayers.find(s => s.name === A.stateViewPlayer) || A.myPlayers[0];
-    if (viewSlot?.lastState) renderState(viewSlot.lastState);
-  }
 }
 
 function switchStateView(playerName) {
@@ -1336,11 +1296,6 @@ function renderState(d) {
 
   html += `</div>`;
 
-  // Debug overlay
-  if (A.debugMode && A.debugData) {
-    html += renderDebugSection(A.debugData);
-  }
-
   el.innerHTML = html;
 }
 
@@ -1371,49 +1326,6 @@ function playerCardHTML(p, isSelf, isCurrent) {
       </div>
       <div class="cards-row">${cards}</div>
     </div>`;
-}
-
-function renderDebugSection(data) {
-  const players = data?.players || [];
-  if (!players.length) return '';
-  let html = `<div class="debug-section"><div class="debug-title">🔍 Debug — All Cards</div><div class="players-stack">`;
-  for (const p of players) {
-    // Debug DTO may use 'cards', 'playingCards', or 'influence' — try all, pick whichever is non-empty
-    const rawAll = (p.playingCards?.length ? p.playingCards : null)
-                || (p.cards?.length        ? p.cards        : null)
-                || p.influence || [];
-    const rawRev = p.revealedCards || [];
-
-    const toType = c => (typeof c === 'string' ? c : (c?.type ?? JSON.stringify(c)));
-
-    const allCards = rawAll.map(c => {
-      const t = toType(c);
-      return `<span class="card-chip ${t}">${ROLE_EMOJI[t]||''} ${t}</span>`;
-    }).join('') || `<span style="color:var(--muted);font-style:italic;font-size:11px;">no cards</span>`;
-
-    const revCards = rawRev.map(c => {
-      const t = toType(c);
-      return `<span class="card-chip revealed">${ROLE_EMOJI[t]||''} ${t} ✗</span>`;
-    }).join('');
-
-    html += `
-      <div class="player-card">
-        <div class="pc-header">
-          <span class="pc-name">${p.name}</span>
-          <span class="pc-coins">⚜ ${p.coins??'—'}</span>
-        </div>
-        <div class="cards-row">${allCards}${revCards}</div>
-      </div>`;
-  }
-  html += `</div></div>`;
-
-  // Raw JSON peek — shows actual field names from backend
-  html += `<details style="margin-top:8px;">
-    <summary style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.25em;color:var(--gold-dim);cursor:pointer;text-transform:uppercase;list-style:none;">▶ Raw Debug JSON</summary>
-    <pre style="margin-top:8px;padding:10px;background:#0a0807;border:1px solid var(--border);color:var(--muted);font-size:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;">${JSON.stringify(data, null, 2)}</pre>
-  </details>`;
-
-  return html;
 }
 
 // ─────────────────────────────── PLAYER-AWARE ACTIONS ─
