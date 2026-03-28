@@ -99,16 +99,9 @@ Only the room creator can start the game.
 
 ### Game State
 
-**Endpoint:** `GET /api/{roomId}/state`
+**Endpoint:** `GET /api/{roomId}/state/{playerName}`
 
 Returns the current game state visible to the requesting player — their own cards and coins, and public info for other players.
-
-**Body:**
-```json
-{
-  "playerName": "Rahul"
-}
-```
 
 **Example Response:**
 ```json
