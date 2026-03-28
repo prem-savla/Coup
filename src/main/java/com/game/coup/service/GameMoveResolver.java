@@ -129,30 +129,16 @@ public class GameMoveResolver {
                 }
                 break;
             case PASS:
-                switch (phase) {
-                    case CHALLENGE_WINDOW:
-                        if(options.getResponses().getValidResponses().contains(PASS)) {
-                            game.noChallengeAction(viewer);
-                            executed = true;
-                        }
-                        break;
-                    case BLOCK_WINDOW:
-                        if(options.getResponses().getValidResponses().contains(PASS)){ 
-                            game.noBlockAction(viewer); 
-                            executed = true;
-                        }
-                        break;
-                    case BLOCK_CHALLENGE_WINDOW:
-                        if(options.getResponses().getValidResponses().contains(PASS)) {
-                            game.noChallengeBlockAction(viewer);
-                            executed = true;
-                        }
-                        break;   
-                    default:
-                        break;
-                }
-                break;
-        
+                if (options.getResponses().getValidResponses().contains(PASS)) {
+                    switch (phase) {
+                        case CHALLENGE_WINDOW       -> game.noChallengeAction(viewer);
+                        case BLOCK_WINDOW           -> game.noBlockAction(viewer);
+                        case BLOCK_CHALLENGE_WINDOW -> game.noChallengeBlockAction(viewer);
+                        default -> throw new IllegalStateException("Unhandled phase: " + phase);
+                    }
+                    executed = true;
+               }
+                break;    
             default:
                 throw new IllegalStateException("Unhandeled State: "+ choice);
         }
