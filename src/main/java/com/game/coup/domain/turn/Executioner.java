@@ -1,11 +1,13 @@
 package com.game.coup.domain.turn;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import com.game.coup.domain.Game;
 import com.game.coup.domain.definitions.ActionType;
 import com.game.coup.domain.model.Card;
+import com.game.coup.domain.model.Deck;
 import com.game.coup.domain.model.Player;
 import com.game.coup.domain.model.Treasury;
 
@@ -57,6 +59,25 @@ public class Executioner {
             }
         }
        ctx.setBlockChallengeLoser(blocker);
+    }
+
+    public static void executeExchange(Game game, List<Card> cardsKept, List<Card> cardsReturned){
+        Deck deck = game.getDeck();
+        Player actor = game.getTurnContext().getActor();
+        List<Card> finalCardsKept = new ArrayList<>();
+        List<Card> finalCardsReturned = new ArrayList<>();
+
+        for(Card card: cardsKept)
+            if(!actor.getPlayingCards().contains(card)) finalCardsKept.add(card);
+        
+        for(Card card: cardsReturned)
+            if(actor.getPlayingCards().contains(card)) finalCardsReturned.add(card);
+            
+        deck.returnCards(cardsReturned);
+        if( finalCardsKept.isEmpty() && cardsKept.isEmpty() ) return;
+        if( finalCardsKept.isEmpty() || cardsKept.isEmpty() || finalCardsKept.size()!=cardsKept.size()) throw new IllegalStateException("Invalid exchange");
+        actor.exchangeCards(finalCardsKept, finalCardsReturned);
+        
     }
     
     public static void executeAction(Game game) {

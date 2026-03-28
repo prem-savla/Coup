@@ -47,8 +47,9 @@ public class GameMoveResolver {
         String choice = request.getChoice();
         String target = request.getTarget();
         Card revealCard = request.getRevealCard();
-        List<Card> drawnCards = request.getDrawnCards();
-        List<Card> returnedCards = request.getReturnedCards();
+        List<Card> cardsKept = request.getCardsKept();
+        List<Card> cardsReturned = request.getCardsReturned();
+
 
         boolean executed = false;
 
@@ -117,8 +118,8 @@ public class GameMoveResolver {
                 }
                 break;
             case SWAP_CARDS:
-                if(options.getResponses().getValidResponses().contains(SWAP_CARDS) &&drawnCards.size()>=count) {
-                    game.executeExchange(drawnCards, returnedCards);
+                if(options.getResponses().getValidResponses().contains(SWAP_CARDS) &&cardsKept.size()<=count) {
+                    game.executeExchange(cardsKept, cardsReturned);
                     executed = true;
                 }
                 break;
