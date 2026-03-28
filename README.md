@@ -175,8 +175,8 @@ Used for all in-game actions including regular moves, challenge/block responses,
   "playerName": "Rahul",
   "choice": "INCOME",
   "target": null,
-  "drawnCards": null,
-  "returnedCards": null,
+  "cardsKept": null,
+  "cardsReturned": null,
   "revealCard": null
 }
 ```
@@ -190,11 +190,11 @@ During an Ambassador exchange, the player receives drawn cards from the deck, se
   "playerName": "Rahul",
   "choice": "SWAP_CARDS",
   "target": null,
-  "drawnCards": [
+  "cardsKept": [
     { "type": "AMBASSADOR", "id": "1b2f7642-a819-4f7f-9cf1-fdf1ba265745" },
     { "type": "ASSASSIN",   "id": "06422b29-0205-4405-aa16-96ea80f2c277" }
   ],
-  "returnedCards": [
+  "cardsReturned": [
     { "type": "ASSASSIN", "id": "691ba675-a2c0-41e3-b4dc-19fba0d6b6c4" },
     { "type": "CAPTAIN",  "id": "32692056-ab00-4f57-947f-de67ae9aff0d" }
   ],
@@ -202,7 +202,7 @@ During an Ambassador exchange, the player receives drawn cards from the deck, se
 }
 ```
 
-> **How exchange works:** The `drawnCards` field contains the cards drawn from the deck (shown in `playerOptions.exchange.drawnCards`). The `returnedCards` field contains the cards the player wants to give back — selecting from the combined pool of drawn + playing cards. The cards kept are whatever is not returned.
+> **How exchange works:** The `cardsKept` field contains the cards drawn from the deck (shown in `playerOptions.exchange.drawnCards`). The `cardsReturned` field contains the cards the player wants to give back — selecting from the combined pool of drawn + playing cards. The cards kept are whatever is not returned.
 
 ---
 
