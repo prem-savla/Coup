@@ -141,8 +141,13 @@ public class Game {
 
     public void noBlockAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.BLOCK_WINDOW) throw new IllegalStateException(gamePhase.toString());
-        respondedPlayers.add(responder);
-        if(respondedPlayers.size() == players.size()-1)setGamePhase(GamePhase.RESOLVE);
+        ActionType action = ctx.getAction();
+        if(action.equals(ActionType.FOREIGN_AID)){
+            respondedPlayers.add(responder);
+            if(respondedPlayers.size() == players.size()-1)setGamePhase(GamePhase.RESOLVE);
+        }else{
+            setGamePhase(GamePhase.RESOLVE);
+        }
     }
 
     // --- Block challenge ---
