@@ -108,7 +108,7 @@ public class Player {
         }
         
         for (Card card : cardsDrawn) {
-            if (playingCards.contains(card) || !cardsReturned.contains(card)) throw new IllegalStateException("Cannot take a card already owned and not released: ");
+            if (playingCards.contains(card) || cardsReturned.contains(card)) throw new IllegalStateException("Cannot take a card already owned and not released: ");
             playingCards.add(card);  
         }
         
