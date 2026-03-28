@@ -108,14 +108,15 @@ public class GameStateResolver {
             case BLOCK_WINDOW:{
                     TurnContext ctx = game.getTurnContext();
                     ActionType action = ctx.getAction();
-                    Player blocker = ctx.getBlocker();
+                    Player target = ctx.getTarget();
+                    Player actor = ctx.getActor();
 
                     if(action.equals(ActionType.STEAL) || action.equals(ActionType.ASSASSINATE))
-                        return viewer.equals(blocker)?
+                        return viewer.equals(target)?
                         PlayerOptions.forResponses(buildBlockResponses()):
                         PlayerOptions.blankOption();
                     else if(action.equals(ActionType.FOREIGN_AID))
-                        return viewer.equals(game.getTurnContext().getActor())?
+                        return viewer.equals(actor)?
                         PlayerOptions.blankOption():
                         PlayerOptions.forResponses(buildBlockResponses());
                     else

@@ -56,7 +56,7 @@ public class Executioner {
                 return;
             }
         }
-       ctx.setBlockChallengeLoser(blockChallenger);
+       ctx.setBlockChallengeLoser(blocker);
     }
     
     public static void executeAction(Game game) {
