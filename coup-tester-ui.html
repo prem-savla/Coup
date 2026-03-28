@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COUP — Game Tester</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=EB+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:              #0a0807;
+  --panel:           #111009;
+  --panel2:          #181511;
+  --panel3:          #201c17;
+  --border:          #272018;
+  --border2:         #342b1e;
+  --gold:            #c9a84c;
+  --gold-dim:        #5e4718;
+  --gold-bright:     #e8c96a;
+  --gold-text:       #d4b05a;
+  --crimson:         #751212;
+  --crimson-mid:     #9c1c1c;
+  --crimson-bright:  #c42424;
+  --cream:           #e8dcc8;
+  --cream-dim:       #a89878;
+  --muted:           #685844;
+  --success:         #2a6b3e;
+  --success-bright:  #4db870;
+  --teal:            #1a5c6b;
+  --error-bg:        #0d0808;
+
+  --duke-bg:    rgba(72,30,110,0.25); --duke-bd:    #6b39a8; --duke-tx:    #b888e0;
+  --assassin-bg:rgba(100,12,12,0.25);--assassin-bd:#8b2020;--assassin-tx:#d46060;
+  --captain-bg: rgba(12,45,92,0.25); --captain-bd: #1a5c99; --captain-tx: #5aaee0;
+  --amb-bg:     rgba(12,72,30,0.25); --amb-bd:     #1a7a40; --amb-tx:     #5ac882;
+  --contessa-bg:rgba(92,12,55,0.25); --contessa-bd:#8b2060; --contessa-tx:#e060a8;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--cream);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══════════════════════════════════════ SETUP ══ */
+#setup-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background:
+    radial-gradient(ellipse at 25% 60%, rgba(117,18,18,.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 25%, rgba(201,168,76,.08) 0%, transparent 50%),
+    var(--bg);
+}
+
+.setup-card {
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  padding: 52px 60px;
+  width: 440px;
+  position: relative;
+}
+.setup-card::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid var(--gold-dim);
+  pointer-events: none;
+}
+
+.logo {
+  font-family: 'Cinzel', serif;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: .22em;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 4px;
+  text-shadow: 0 0 40px rgba(201,168,76,.2);
+}
+.logo-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .4em;
+  color: var(--muted);
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 44px;
+}
+
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .3em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.field input {
+  width: 100%;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  color: var(--cream);
+  font-family: 'EB Garamond', serif;
+  font-size: 16px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.field input:focus { border-color: var(--gold-dim); }
+.field input::placeholder { color: var(--muted); }
+
+.btn-row { display: flex; gap: 10px; margin-top: 28px; }
+
+.btn {
+  flex: 1;
+  padding: 12px 16px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-primary   { background: var(--crimson);  color: var(--cream);   border: 1px solid var(--crimson-mid); }
+.btn-primary:hover  { background: var(--crimson-mid); }
+.btn-secondary { background: transparent; color: var(--gold-text); border: 1px solid var(--gold-dim); }
+.btn-secondary:hover{ background: var(--gold-dim); color: var(--cream); }
+.btn-gold      { background: var(--gold-dim); color: var(--gold-bright); border: 1px solid var(--gold); }
+.btn-gold:hover{ background: var(--gold); color: var(--bg); }
+
+.inline-err {
+  margin-top: 14px;
+  padding: 9px 13px;
+  background: rgba(117,18,18,.2);
+  border: 1px solid var(--crimson);
+  color: #e07070;
+  font-size: 13px;
+  display: none;
+}
+
+/* ═══════════════════════════════════════ LOBBY ══ */
+#lobby-screen {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(117,18,18,.12) 0%, transparent 55%),
+    var(--bg);
+}
+
+.lobby-card {
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  padding: 44px 56px;
+  width: 440px;
+  position: relative;
+}
+.lobby-card::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid var(--gold-dim);
+  pointer-events: none;
+}
+
+.room-code-label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .35em;
+  color: var(--muted);
+  text-align: center;
+  text-transform: uppercase;
+  margin-top: 20px;
+}
+.room-code {
+  font-family: 'Cinzel', serif;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: .35em;
+  color: var(--gold);
+  text-align: center;
+  cursor: pointer;
+  margin: 8px 0 4px;
+  transition: color .2s;
+}
+.room-code:hover { color: var(--gold-bright); }
+.room-copy-hint {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.lobby-player-list { min-height: 80px; margin-bottom: 20px; }
+.lobby-player-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: .05em;
+}
+.lobby-dot { width: 6px; height: 6px; background: var(--success-bright); border-radius: 50%; }
+.lobby-you { font-size: 8px; color: var(--crimson-bright); letter-spacing: .15em; }
+
+/* ═══════════════════════════════════════ TOP BAR ══ */
+#top-bar {
+  display: none;
+  align-items: center;
+  height: 46px;
+  padding: 0 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border2);
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.bar-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .25em;
+  color: var(--gold);
+}
+.bar-room {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .15em;
+  color: var(--muted);
+}
+.bar-room span { color: var(--cream); letter-spacing: .25em; }
+
+.bar-spacer { flex: 1; }
+
+.bar-btn {
+  padding: 5px 13px;
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .2em;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  text-transform: uppercase;
+}
+.bar-btn:hover { border-color: var(--gold-dim); color: var(--gold-text); }
+.bar-btn.on    { border-color: var(--gold); color: var(--gold); }
+.bar-btn.danger{ border-color: var(--crimson); color: var(--crimson-bright); }
+.bar-btn.danger:hover { background: rgba(117,18,18,.2); }
+
+.player-sel-wrap { display: flex; align-items: center; gap: 9px; }
+.player-sel-wrap label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .2em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+#player-select {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  color: var(--cream);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  padding: 4px 30px 4px 10px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ═══════════════════════════════════════ GAME ══ */
+#game-screen {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: 1fr 156px;
+  height: 100%;
+}
+
+/* ─── RIGHT: player columns container ─── */
+.players-cols {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  border-left: 1px solid var(--border2);
+  min-width: 300px;
+  max-width: 80vw;
+}
+
+.player-col {
+  width: 290px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 16px;
+  border-right: 1px solid var(--border);
+}
+.player-col:last-child { border-right: none; }
+
+.player-col-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border2);
+}
+.player-col-name {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  color: var(--gold);
+  flex: 1;
+}
+.player-col-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 7px;
+  letter-spacing: .2em;
+  padding: 2px 7px;
+  background: rgba(117,18,18,.2);
+  border: 1px solid var(--crimson);
+  color: var(--crimson-bright);
+}
+
+/* ─── LEFT: STATE ─── */
+.state-panel {
+  grid-column: 1;
+  grid-row: 1;
+  overflow-y: auto;
+  border-right: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border2);
+  padding: 16px 20px;
+}
+
+/* ─── BOTTOM-LEFT: LOG ─── */
+.log-panel {
+  grid-column: 1;
+  grid-row: 2;
+  overflow-y: auto;
+  padding: 10px 20px;
+  background: var(--error-bg);
+  border-top: 1px solid var(--border2);
+}
+
+/* ─── SHARED PANEL ELEMENTS ─── */
+.pane-title {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .35em;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+/* ─── PHASE BANNER ─── */
+.phase-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  margin-bottom: 14px;
+}
+.phase-chip {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .18em;
+  padding: 3px 10px;
+  background: var(--gold-dim);
+  color: var(--gold-bright);
+  border: 1px solid var(--gold-dim);
+  white-space: nowrap;
+}
+.phase-detail { font-size: 13px; color: var(--cream-dim); }
+.phase-detail strong { color: var(--cream); }
+
+/* ─── CONTEXT GRID ─── */
+.ctx-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.ctx-item {
+  padding: 8px 10px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+}
+.ctx-lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 7px;
+  letter-spacing: .22em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.ctx-val { font-size: 13px; color: var(--cream); }
+.ctx-val.none { color: var(--muted); font-style: italic; }
+
+/* ─── WINNER BANNER ─── */
+.winner-banner {
+  text-align: center;
+  padding: 20px;
+  background: rgba(201,168,76,.08);
+  border: 1px solid var(--gold);
+  margin-bottom: 16px;
+}
+.winner-name {
+  font-family: 'Cinzel', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: .15em;
+}
+.winner-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .3em;
+  color: var(--gold-dim);
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+/* ─── PLAYER CARDS ─── */
+.players-stack { display: flex; flex-direction: column; gap: 8px; }
+
+.player-card {
+  padding: 12px 14px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  transition: border-color .2s;
+  position: relative;
+}
+.player-card.is-current { border-color: var(--gold-dim); }
+.player-card.is-self    { border-left: 2px solid var(--crimson-bright); }
+.player-card.is-elim    { opacity: .38; }
+
+.pc-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 9px;
+}
+.pc-name {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+.pc-you-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 7px;
+  letter-spacing: .18em;
+  color: var(--crimson-bright);
+  background: rgba(117,18,18,.2);
+  padding: 1px 6px;
+  border: 1px solid var(--crimson);
+}
+.pc-turn-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 7px;
+  letter-spacing: .18em;
+  color: var(--gold);
+  background: rgba(201,168,76,.08);
+  padding: 1px 6px;
+  border: 1px solid var(--gold-dim);
+}
+.pc-coins {
+  margin-left: auto;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--gold-text);
+}
+
+.cards-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.card-chip {
+  padding: 3px 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .1em;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.card-chip.DUKE       { background: var(--duke-bg);    border-color: var(--duke-bd);    color: var(--duke-tx); }
+.card-chip.ASSASSIN   { background: var(--assassin-bg);border-color: var(--assassin-bd);color: var(--assassin-tx); }
+.card-chip.CAPTAIN    { background: var(--captain-bg); border-color: var(--captain-bd); color: var(--captain-tx); }
+.card-chip.AMBASSADOR { background: var(--amb-bg);     border-color: var(--amb-bd);     color: var(--amb-tx); }
+.card-chip.CONTESSA   { background: var(--contessa-bg);border-color: var(--contessa-bd);color: var(--contessa-tx); }
+.card-chip.hidden     { background: rgba(40,32,22,.5); border-color: var(--border2); color: var(--muted); font-style:italic; }
+.card-chip.revealed   { background: rgba(10,8,6,.6);   border-color: var(--muted);   color: var(--muted); text-decoration: line-through; }
+
+/* ─── DEBUG SECTION ─── */
+.debug-section {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgba(201,168,76,.04);
+  border: 1px dashed var(--gold-dim);
+}
+.debug-title {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .3em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ═══════════════════════════════════════ OPTIONS ══ */
+.opts-status {
+  padding: 10px 14px;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--cream-dim);
+  font-style: italic;
+  line-height: 1.4;
+}
+.opts-status.active {
+  background: rgba(117,18,18,.12);
+  border-color: var(--crimson);
+  color: var(--cream);
+  font-style: normal;
+}
+
+.sect { margin-bottom: 16px; }
+.sect-title {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .28em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 13px;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  color: var(--cream);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .1em;
+  transition: all .2s;
+  text-align: left;
+  margin-bottom: 5px;
+}
+.action-btn:last-of-type { margin-bottom: 0; }
+.action-btn:hover  { background: rgba(201,168,76,.07); border-color: var(--gold-dim); color: var(--gold-bright); }
+.action-btn.sel    { background: rgba(201,168,76,.13); border-color: var(--gold);     color: var(--gold-bright); }
+.action-btn.danger:hover { background: rgba(117,18,18,.15); border-color: var(--crimson-bright); color: #e07070; }
+.action-btn.danger.sel   { background: rgba(117,18,18,.2);  border-color: var(--crimson-bright); color: #e07070; }
+
+.act-icon { font-size: 14px; flex-shrink: 0; }
+.act-name { flex: 1; }
+.act-desc { font-size: 10px; color: var(--muted); font-family:'EB Garamond',serif; letter-spacing:0; }
+
+/* Target picker */
+.target-picker {
+  margin-bottom: 8px;
+  padding: 10px;
+  background: rgba(201,168,76,.04);
+  border: 1px solid var(--gold-dim);
+  animation: fadeIn .15s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; } }
+
+.target-picker-lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .25em;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.target-btn {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  color: var(--cream);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-align: left;
+  transition: all .2s;
+  margin-bottom: 4px;
+}
+.target-btn:hover { background: rgba(117,18,18,.2); border-color: var(--crimson-bright); color: #e07070; }
+
+/* Reveal */
+.reveal-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 11px 13px;
+  background: rgba(117,18,18,.12);
+  border: 1px solid var(--crimson);
+  color: #e07070;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .1em;
+  transition: all .2s;
+  margin-bottom: 5px;
+}
+.reveal-btn:hover { background: rgba(117,18,18,.25); border-color: var(--crimson-bright); }
+
+/* Exchange */
+.keep-counter {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.keep-counter span { color: var(--gold); font-weight: 600; }
+
+.exc-section-lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .25em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 10px 0 6px;
+}
+.exc-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  color: var(--cream);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .08em;
+  transition: all .2s;
+  margin-bottom: 5px;
+}
+.exc-card-btn.keep   { background: rgba(42,107,62,.2);  border-color: #2a6b3e; color: var(--success-bright); }
+.exc-card-btn.return { background: rgba(117,18,18,.15); border-color: var(--crimson); color: #d46060; }
+.exc-status { margin-left: auto; font-size: 10px; }
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  background: var(--crimson);
+  color: var(--cream);
+  border: 1px solid var(--crimson-mid);
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 12px;
+}
+.submit-btn:hover    { background: var(--crimson-mid); }
+.submit-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+.no-opts {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 4px 0;
+}
+
+/* ═══════════════════════════════════════ LOG ══ */
+.log-row {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(39,32,24,.5);
+  font-size: 12px;
+  align-items: flex-start;
+}
+.log-row:last-child { border-bottom: none; }
+.log-time {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+  letter-spacing: .05em;
+}
+.log-msg          { color: #d46060; }
+.log-msg.info     { color: var(--cream-dim); }
+.log-msg.success  { color: var(--success-bright); }
+
+/* scrollbars */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ SETUP ══════════════════════ -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="logo">COUP</div>
+    <div class="logo-sub">Multiplayer · Game Tester</div>
+
+    <div class="field">
+      <label>Your Name</label>
+      <input id="inp-name" type="text" placeholder="Enter player name" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Room ID <span style="color:var(--muted);font-style:italic;">(leave blank to create)</span></label>
+      <input id="inp-room" type="text" placeholder="e.g. ABCD" style="text-transform:uppercase" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Server URL</label>
+      <input id="inp-url" type="text" value="http://localhost:8080" />
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doCreate()">Create Room</button>
+      <button class="btn btn-secondary" onclick="doJoin()">Join Room</button>
+    </div>
+    <div class="inline-err" id="setup-err"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ LOBBY ══════════════════════ -->
+<div id="lobby-screen">
+  <div class="lobby-card">
+    <div class="logo" style="font-size:30px">COUP</div>
+    <div class="logo-sub" style="margin-bottom:0">Waiting for Players</div>
+
+    <div class="room-code-label">Room Code</div>
+    <div class="room-code" id="lobby-code" onclick="copyCode()" title="Click to copy">—</div>
+    <div class="room-copy-hint">Click to copy</div>
+
+    <div class="lobby-player-list" id="lobby-players">
+      <div style="color:var(--muted);font-style:italic;font-size:13px;">Connecting…</div>
+    </div>
+
+    <div class="field" style="margin-bottom:10px;">
+      <label>Add Test Player</label>
+      <div style="display:flex;gap:8px;">
+        <input id="inp-extra" type="text" placeholder="Player name" autocomplete="off" style="flex:1;background:var(--panel2);border:1px solid var(--border2);color:var(--cream);font-family:'EB Garamond',serif;font-size:15px;padding:8px 12px;outline:none;" />
+        <button class="btn btn-secondary" style="flex:0;white-space:nowrap;" onclick="addTestPlayer()">+ Add</button>
+      </div>
+    </div>
+    <div id="my-players-list" style="margin-bottom:14px;"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" id="start-btn" style="display:none" onclick="doStart()">Start Game</button>
+      <button class="btn btn-secondary" onclick="doLeave()">Leave</button>
+    </div>
+    <div class="inline-err" id="lobby-err"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TOP BAR ════════════════════ -->
+<div id="top-bar">
+  <div class="bar-logo">COUP</div>
+  <div class="bar-room">ROOM&nbsp;<span id="bar-room">—</span></div>
+  <div class="bar-spacer"></div>
+  <button class="bar-btn" onclick="fetchAllStates()">↻ Refresh</button>
+  <button class="bar-btn" id="debug-btn" onclick="toggleDebug()">Debug</button>
+  <button class="bar-btn danger" onclick="doLeave()">Leave</button>
+</div>
+
+<!-- ═══════════════════════ GAME ═══════════════════════ -->
+<div id="game-screen">
+  <div class="game-grid">
+
+    <!-- LEFT: shared state -->
+    <div class="state-panel">
+      <div class="pane-title">Game State</div>
+      <div id="state-body"><div class="no-opts">Loading…</div></div>
+    </div>
+
+    <!-- RIGHT: one column per controlled player -->
+    <div class="players-cols" id="players-cols"></div>
+
+    <!-- BOTTOM-LEFT: log -->
+    <div class="log-panel">
+      <div class="pane-title" style="margin-bottom:6px;">Activity Log</div>
+      <div id="log-body"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────── APP STATE ──────
+const A = {
+  screen:     'setup',
+  name:       '',        // the "creator" name (first player)
+  roomId:     '',
+  creator:    false,
+  baseUrl:    'http://localhost:8080',
+  allPlayers: [],        // all players in room (public list)
+  myPlayers:  [],        // players this browser controls: [{ name, lastState, pendingAction, excPool, excDrawn, excKeep, excCount }]
+  stateViewPlayer: null, // which player's perspective the state panel shows
+  debugMode:  false,
+  debugData:  null,
+};
+
+const NEEDS_TARGET = new Set(['COUP', 'STEAL', 'ASSASSINATE']);
+
+function mkPlayerSlot(name) {
+  return { name, lastState: null, pendingAction: null, excPool: [], excDrawn: [], excKeep: new Set(), excCount: 0 };
+}
+
+const ACTION_META = {
+  INCOME:      { label:'Income',      desc:'+1 coin',                       icon:'💰' },
+  FOREIGN_AID: { label:'Foreign Aid', desc:'+2 coins',                      icon:'💼' },
+  COUP:        { label:'Coup',        desc:'Pay 7 — force reveal',          icon:'⚔️' },
+  TAX:         { label:'Tax',         desc:'+3 coins  (Duke)',              icon:'👑' },
+  STEAL:       { label:'Steal',       desc:'+2 from player  (Captain)',     icon:'⚓' },
+  ASSASSINATE: { label:'Assassinate', desc:'Pay 3 — force reveal  (Assassin)',icon:'🗡️' },
+  EXCHANGE:    { label:'Exchange',    desc:'Swap cards  (Ambassador)',      icon:'🤝' },
+};
+
+const RESPONSE_META = {
+  CHALLENGE:           { label:'Challenge',          desc:'Call the bluff',          icon:'❓' },
+  PASS:                { label:'Pass',               desc:'Allow the action',         icon:'✓' },
+  BLOCK:               { label:'Block',              desc:'Counter the action',       icon:'🛡️' },
+  BLOCK_AS_DUKE:       { label:'Block — Duke',       desc:'Block foreign aid',        icon:'👑' },
+  BLOCK_AS_CONTESSA:   { label:'Block — Contessa',   desc:'Block assassination',      icon:'🌹' },
+  BLOCK_AS_CAPTAIN:    { label:'Block — Captain',    desc:'Block stealing',           icon:'⚓' },
+  BLOCK_AS_AMBASSADOR: { label:'Block — Ambassador', desc:'Block stealing',           icon:'🤝' },
+};
+
+const ROLE_EMOJI = { DUKE:'👑', ASSASSIN:'🗡️', CAPTAIN:'⚓', AMBASSADOR:'🤝', CONTESSA:'🌹' };
+
+// ─────────────────────────────── HELPERS ────────
+function ge(id) { return document.getElementById(id); }
+
+function showScreen(s) {
+  ge('setup-screen').style.display  = 'none';
+  ge('lobby-screen').style.display  = 'none';
+  ge('top-bar').style.display       = 'none';
+  ge('game-screen').style.display   = 'none';
+  A.screen = s;
+  if (s === 'setup') { ge('setup-screen').style.display = 'flex'; }
+  else if (s === 'lobby') { ge('lobby-screen').style.display = 'flex'; }
+  else if (s === 'game') {
+    ge('top-bar').style.display   = 'flex';
+    ge('game-screen').style.display = 'block';
+  }
+}
+
+function showErr(id, msg) {
+  const el = ge(id); if (!el) return;
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideErr(id) {
+  const el = ge(id); if (el) el.style.display = 'none';
+}
+
+function addLog(msg, type = 'error') {
+  const body = ge('log-body'); if (!body) return;
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  const t = new Date().toTimeString().slice(0,8);
+  row.innerHTML = `<span class="log-time">${t}</span><span class="log-msg ${type}">${msg}</span>`;
+  body.prepend(row);
+  while (body.children.length > 60) body.removeChild(body.lastChild);
+}
+
+// ─────────────────────────────── API ────────────
+async function call(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body !== undefined && method !== 'GET' && method !== 'HEAD') opts.body = JSON.stringify(body);
+  const res = await fetch(`${A.baseUrl}${path}`, opts);
+  const txt = await res.text();
+  let data; try { data = JSON.parse(txt); } catch { data = txt; }
+  if (!res.ok) throw new Error(typeof data === 'string' ? data : (data?.message || data?.error || JSON.stringify(data) || `HTTP ${res.status}`));
+  return data;
+}
+
+// ─────────────────────────────── SETUP ──────────
+async function doCreate() {
+  const name = ge('inp-name').value.trim();
+  const url  = ge('inp-url').value.trim();
+  if (!name) { showErr('setup-err', 'Enter your name.'); return; }
+  hideErr('setup-err');
+  A.name = name; A.baseUrl = url || 'http://localhost:8080'; A.creator = true;
+  try {
+    const d = await call('POST', '/api/room', { action:'CREATE', playerName:name });
+    A.roomId = d.roomId;
+    A.myPlayers = [mkPlayerSlot(name)];
+    enterLobby();
+  } catch(e) { showErr('setup-err', e.message); }
+}
+
+async function doJoin() {
+  const name   = ge('inp-name').value.trim();
+  const roomId = ge('inp-room').value.trim().toUpperCase();
+  const url    = ge('inp-url').value.trim();
+  if (!name)   { showErr('setup-err', 'Enter your name.'); return; }
+  if (!roomId) { showErr('setup-err', 'Enter a Room ID.'); return; }
+  hideErr('setup-err');
+  A.name = name; A.roomId = roomId; A.baseUrl = url || 'http://localhost:8080'; A.creator = false;
+  try {
+    await call('POST', '/api/room', { action:'JOIN', playerName:name, roomId });
+    A.myPlayers = [mkPlayerSlot(name)];
+    enterLobby();
+  } catch(e) { showErr('setup-err', e.message); }
+}
+
+// ─────────────────────────────── LOBBY ──────────
+let lobbyTimer = null;
+
+function enterLobby() {
+  showScreen('lobby');
+  ge('lobby-code').textContent = A.roomId;
+  ge('bar-room').textContent   = A.roomId;
+  if (A.creator) ge('start-btn').style.display = 'block';
+  clearTimeout(lobbyTimer);
+  lobbyPoll();
+}
+
+async function lobbyPoll() {
+  clearTimeout(lobbyTimer);
+  // Try fetching state — if the game started, this succeeds
+  try {
+    const d = await call('GET', `/api/${A.roomId}/state/${A.name}`);
+    if (d?.gameState?.phase) {
+      // Game is live
+      if (d.playersState) {
+        A.allPlayers = [d.playersState.self.name, ...(d.playersState.otherPlayers||[]).map(p=>p.name)];
+      }
+      enterGame();
+      return;
+    }
+  } catch(_) {}
+
+  // Otherwise poll debug for player list
+  try {
+    const d = await call('GET', `/api/${A.roomId}/debug`);
+    renderLobbyPlayers(d);
+  } catch(_) {}
+
+  lobbyTimer = setTimeout(lobbyPoll, 2000);
+}
+
+function renderLobbyPlayers(data) {
+  const el = ge('lobby-players');
+  const players = data?.players || [];
+  if (!players.length) {
+    el.innerHTML = `<div style="color:var(--muted);font-style:italic;font-size:13px;">Waiting for others to join…</div>`;
+    return;
+  }
+  A.allPlayers = players.map(p => p.name);
+  el.innerHTML = players.map(p => `
+    <div class="lobby-player-row">
+      <div class="lobby-dot"></div>
+      <span>${p.name}</span>
+      ${p.name === A.name ? '<span class="lobby-you">(you)</span>' : ''}
+    </div>
+  `).join('');
+}
+
+async function addTestPlayer() {
+  const inp  = ge('inp-extra');
+  const name = inp.value.trim();
+  if (!name) return;
+  if (A.myPlayers.find(p => p.name === name)) { inp.value = ''; return; }
+  hideErr('lobby-err');
+  try {
+    await call('POST', '/api/room', { action:'JOIN', playerName:name, roomId: A.roomId });
+    A.myPlayers.push(mkPlayerSlot(name));
+    inp.value = '';
+    renderMyPlayersList();
+  } catch(e) { showErr('lobby-err', e.message); }
+}
+
+function renderMyPlayersList() {
+  const el = ge('my-players-list'); if (!el) return;
+  if (A.myPlayers.length <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Controlling</div>
+    ${A.myPlayers.map(p => `
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <div class="lobby-dot" style="background:var(--gold)"></div>
+        <span>${p.name}</span>
+        ${p.name === A.name ? '<span class="lobby-you">(creator)</span>' : ''}
+      </div>`).join('')}`;
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(A.roomId).catch(()=>{});
+  const el = ge('lobby-code');
+  const orig = el.textContent;
+  el.textContent = 'Copied!';
+  el.style.color = 'var(--success-bright)';
+  setTimeout(()=>{ el.textContent = orig; el.style.color = ''; }, 1100);
+}
+
+async function doStart() {
+  hideErr('lobby-err');
+  try {
+    await call('POST', '/api/room', { action:'START', playerName:A.name, roomId:A.roomId });
+    clearTimeout(lobbyTimer);
+    enterGame();
+  } catch(e) { showErr('lobby-err', e.message); }
+}
+
+// ─────────────────────────────── GAME ───────────
+let refreshTimer = null;
+
+function doLeave() {
+  clearInterval(refreshTimer);
+  clearTimeout(lobbyTimer);
+  A.allPlayers = []; A.myPlayers = []; A.name = ''; A.roomId = '';
+  showScreen('setup');
+}
+
+function enterGame() {
+  showScreen('game');
+  ge('bar-room').textContent = A.roomId;
+  clearInterval(refreshTimer);
+  fetchAllStates();
+  refreshTimer = setInterval(fetchAllStates, 3000);
+}
+
+async function fetchAllStates() {
+  // Fetch state for every player this browser controls, in parallel
+  await Promise.all(A.myPlayers.map(async slot => {
+    try {
+      slot.lastState = await call('GET', `/api/${A.roomId}/state/${slot.name}`);
+    } catch(e) {
+      addLog(`State error [${slot.name}]: ${e.message}`, 'error');
+    }
+  }));
+
+  // Sync public player list from any slot's response
+  const anyState = A.myPlayers.find(s => s.lastState)?.lastState;
+  if (anyState?.playersState) {
+    const names = [anyState.playersState.self.name, ...(anyState.playersState.otherPlayers||[]).map(p=>p.name)];
+    A.allPlayers = names;
+  }
+
+  // Default stateViewPlayer to first slot
+  if (!A.stateViewPlayer && A.myPlayers.length) A.stateViewPlayer = A.myPlayers[0].name;
+
+  const viewSlot = A.myPlayers.find(s => s.name === A.stateViewPlayer) || A.myPlayers[0];
+  const viewState = viewSlot?.lastState || anyState;
+  if (viewState) renderState(viewState);
+  renderAllPlayerCols();
+  if (A.debugMode) fetchDebug();
+}
+
+async function fetchDebug() {
+  try {
+    const d = await call('GET', `/api/${A.roomId}/debug`);
+    A.debugData = d;
+    const viewSlot = A.myPlayers.find(s => s.name === A.stateViewPlayer) || A.myPlayers[0];
+    const viewState = viewSlot?.lastState;
+    if (viewState) renderState(viewState);
+  } catch(_) {}
+}
+
+function toggleDebug() {
+  A.debugMode = !A.debugMode;
+  ge('debug-btn').classList.toggle('on', A.debugMode);
+  if (A.debugMode) fetchDebug();
+  else {
+    A.debugData = null;
+    const viewSlot = A.myPlayers.find(s => s.name === A.stateViewPlayer) || A.myPlayers[0];
+    if (viewSlot?.lastState) renderState(viewSlot.lastState);
+  }
+}
+
+function switchStateView(playerName) {
+  A.stateViewPlayer = playerName;
+  const slot = A.myPlayers.find(s => s.name === playerName);
+  if (slot?.lastState) renderState(slot.lastState);
+}
+
+// ─────────────────────────────── PLAYER COLUMNS ─
+function renderAllPlayerCols() {
+  const container = ge('players-cols'); if (!container) return;
+  // Build or update each column
+  for (const slot of A.myPlayers) {
+    let col = ge(`pcol-${slot.name}`);
+    if (!col) {
+      col = document.createElement('div');
+      col.className = 'player-col';
+      col.id = `pcol-${slot.name}`;
+      container.appendChild(col);
+    }
+    renderPlayerCol(col, slot);
+  }
+}
+
+function renderPlayerCol(col, slot) {
+  const d    = slot.lastState;
+  const opts = d?.playerOptions;
+  const gs   = d?.gameState;
+  const ps   = d?.playersState;
+  const self = ps?.self;
+  const cur  = gs?.currentPlayer;
+  const isTurn = cur === slot.name;
+
+  let html = `
+    <div class="player-col-header">
+      <span class="player-col-name">${slot.name}</span>
+      ${isTurn ? `<span class="player-col-badge" style="background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold);">⚡ TURN</span>` : ''}
+    </div>`;
+
+  // Mini self-state: coins + cards
+  if (self) {
+    const playing  = self.playingCards  || [];
+    const revealed = self.revealedCards || [];
+    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:var(--panel2);border:1px solid var(--border);">`;
+    html += `<span style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold-text);">⚜ ${self.coins}</span>`;
+    html += `<span style="flex:1;display:flex;gap:5px;flex-wrap:wrap;">`;
+    for (const c of playing)  html += `<span class="card-chip ${c}" style="font-size:7px;padding:2px 7px;">${ROLE_EMOJI[c]||''} ${c}</span>`;
+    for (const c of revealed) html += `<span class="card-chip revealed" style="font-size:7px;padding:2px 7px;">${c} ✗</span>`;
+    html += `</span></div>`;
+  }
+
+  // Winner
+  const winner = gs?.winner;
+  if (winner && winner !== '__NONE__') {
+    html += `<div class="opts-status">🏆 <strong>${winner}</strong> wins!</div>`;
+    col.innerHTML = html; return;
+  }
+
+  const hasAny = opts && (opts.actions || opts.responses || opts.reveal || opts.exchange);
+
+  if (hasAny) {
+    html += `<div class="opts-status active" style="font-size:12px;">⚡ Your move</div>`;
+  } else {
+    html += `<div class="opts-status" style="font-size:12px;">Waiting for <strong>${cur||'…'}</strong></div>`;
+    col.innerHTML = html; return;
+  }
+
+  const otherPlayers = ps?.otherPlayers || [];
+
+  // ACTIONS
+  if (opts.actions) {
+    const actions = [
+      ...(opts.actions.validNonTargetedActions || []),
+      ...(opts.actions.validTargetedActions    || []),
+    ];
+    html += `<div class="sect"><div class="sect-title">Actions</div>`;
+    for (const act of actions) {
+      const m = ACTION_META[act] || { label:act, desc:'', icon:'•' };
+      const danger = ['COUP','ASSASSINATE'].includes(act);
+      const sel    = slot.pendingAction === act;
+      html += `<button class="action-btn ${danger?'danger':''} ${sel?'sel':''}" id="abtn-${slot.name}-${act}" onclick="clickAction('${slot.name}','${act}')">`
+            + `<span class="act-icon">${m.icon}</span>`
+            + `<span class="act-name" style="font-size:8px;">${m.label}</span>`
+            + `<span class="act-desc">${m.desc}</span>`
+            + `</button>`;
+      if (NEEDS_TARGET.has(act)) {
+        html += `<div id="tpick-${slot.name}-${act}" style="display:${sel?'block':'none'}">` + buildTargetPicker(slot.name, act, otherPlayers) + `</div>`;
+      }
+    }
+    html += `</div>`;
+  }
+
+  // RESPONSES
+  if (opts.responses) {
+    const resps = opts.responses.validResponses || [];
+    html += `<div class="sect"><div class="sect-title">Responses</div>`;
+    for (const r of resps) {
+      const m = RESPONSE_META[r] || { label:r, desc:'', icon:'•' };
+      const danger = r === 'CHALLENGE' || r === 'CHALLENGE_BLOCK';
+      html += `<button class="action-btn ${danger?'danger':''}" onclick="submitMove('${slot.name}',{choice:'${r}'})">`
+            + `<span class="act-icon">${m.icon}</span>`
+            + `<span class="act-name" style="font-size:8px;">${m.label}</span>`
+            + `<span class="act-desc">${m.desc}</span>`
+            + `</button>`;
+    }
+    html += `</div>`;
+  }
+
+  // REVEAL
+  if (opts.reveal) {
+    const cards = Array.isArray(opts.reveal) ? opts.reveal : (opts.reveal.validCards || []);
+    html += `<div class="sect"><div class="sect-title">Reveal — Sacrifice a card</div>`;
+    for (const card of cards) {
+      const type = card.type || card;
+      const safeCard = JSON.stringify(typeof card === 'string' ? { type:card } : card).replace(/'/g, "\\'");
+      html += `<button class="reveal-btn" onclick='clickReveal("${slot.name}",${safeCard})'>`
+            + `<span>${ROLE_EMOJI[type]||'🃏'}</span><span style="font-size:11px;">${type}</span>`
+            + `</button>`;
+    }
+    html += `</div>`;
+  }
+
+  // EXCHANGE
+  if (opts.exchange) {
+    const ex = opts.exchange;
+    const drawn   = ex.drawnCards   || [];
+    const playing = ex.playingCards || [];
+    const count   = ex.selectCount  || 2;
+    const pool    = [...drawn.map(c=>({...c,src:'drawn'})), ...playing.map(c=>({...c,src:'playing'}))];
+
+    slot.excPool  = pool;
+    slot.excDrawn = drawn;
+    slot.excCount = count;
+    if (slot.excKeep.size === 0) playing.forEach(c => slot.excKeep.add(c.id));
+
+    html += `<div class="sect"><div class="sect-title">Ambassador Exchange</div>`;
+    html += `<div class="keep-counter">Keep <span id="keep-n-${slot.name}">${slot.excKeep.size}</span> / ${count}</div>`;
+    html += `<div class="exc-section-lbl">From Deck</div>`;
+    for (const c of drawn)   html += excCardBtn(slot.name, c, slot.excKeep.has(c.id));
+    html += `<div class="exc-section-lbl">Your Cards</div>`;
+    for (const c of playing) html += excCardBtn(slot.name, c, slot.excKeep.has(c.id));
+    html += `<button class="submit-btn" id="exc-submit-${slot.name}" onclick="submitExchange('${slot.name}')" ${slot.excKeep.size!==count?'disabled':''}>Confirm Exchange</button>`;
+    html += `</div>`;
+  }
+
+  col.innerHTML = html;
+}
+
+
+
+// ─────────────────────────────── RENDER STATE ───
+function renderState(d) {
+  const el = ge('state-body'); if (!el) return;
+  const gs = d.gameState;
+  const ps = d.playersState;
+  let html = '';
+
+  // View switcher — only show if controlling 2+ players
+  if (A.myPlayers.length > 1) {
+    html += `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">`;
+    for (const slot of A.myPlayers) {
+      const active = slot.name === A.stateViewPlayer;
+      html += `<button onclick="switchStateView('${slot.name}')" style="
+        font-family:'Cinzel',serif;font-size:8px;letter-spacing:.15em;text-transform:uppercase;
+        padding:5px 13px;cursor:pointer;transition:all .2s;border:1px solid;
+        background:${active?'var(--gold-dim)':'transparent'};
+        color:${active?'var(--gold-bright)':'var(--muted)'};
+        border-color:${active?'var(--gold)':'var(--border2)'};
+      ">${slot.name}</button>`;
+    }
+    html += `</div>`;
+  }
+
+  // Winner
+  const winner = gs?.winner;
+  if (winner && winner !== '__NONE__') {
+    html += `
+      <div class="winner-banner">
+        <div class="winner-name">🏆 ${winner}</div>
+        <div class="winner-sub">Claims Power — Game Over</div>
+      </div>`;
+  }
+
+  // Phase
+  const phase  = gs?.phase || '—';
+  const curPly = gs?.currentPlayer || '—';
+  html += `
+    <div class="phase-banner">
+      <span class="phase-chip">${phase}</span>
+      <span class="phase-detail">Current turn: <strong>${curPly}</strong></span>
+    </div>`;
+
+  // Context grid — show only non-NONE fields
+  const ctxFields = [
+    { l:'Actor',           v: gs?.actor },
+    { l:'Action',          v: gs?.action },
+    { l:'Target',          v: gs?.target },
+    { l:'Challenger',      v: gs?.challenger },
+    { l:'Blocker',         v: gs?.blocker },
+    { l:'Block Challenger',v: gs?.blockChallenger },
+  ].filter(f => f.v && f.v !== '__NONE__');
+
+  if (ctxFields.length) {
+    html += `<div class="ctx-grid">`;
+    html += ctxFields.map(f => `
+      <div class="ctx-item">
+        <div class="ctx-lbl">${f.l}</div>
+        <div class="ctx-val">${f.v}</div>
+      </div>`).join('');
+    html += `</div>`;
+  }
+
+  // Players
+  html += `<div class="pane-title" style="margin-top:14px;">Players</div>`;
+  html += `<div class="players-stack">`;
+
+  const self   = ps?.self;
+  const others = ps?.otherPlayers || [];
+
+  if (self) html += playerCardHTML(self, true, self.name === curPly);
+  for (const p of others) html += playerCardHTML(p, false, p.name === curPly);
+
+  html += `</div>`;
+
+  // Debug overlay
+  if (A.debugMode && A.debugData) {
+    html += renderDebugSection(A.debugData);
+  }
+
+  el.innerHTML = html;
+}
+
+function playerCardHTML(p, isSelf, isCurrent) {
+  const playing  = p.playingCards  || [];
+  const revealed = p.revealedCards || [];
+  const isElim   = isSelf ? (playing.length === 0 && revealed.length > 0) : (revealed.length >= 2);
+  const cls = ['player-card', isSelf?'is-self':'', isCurrent?'is-current':'', isElim?'is-elim':''].filter(Boolean).join(' ');
+
+  let cards = '';
+  if (isSelf) {
+    for (const c of playing)  cards += `<span class="card-chip ${c}">${ROLE_EMOJI[c]||''} ${c}</span>`;
+    for (const c of revealed) cards += `<span class="card-chip revealed">${ROLE_EMOJI[c]||''} ${c} ✗</span>`;
+    if (!playing.length && !revealed.length) cards = `<span class="card-chip hidden">No cards</span>`;
+  } else {
+    const hidden = Math.max(0, 2 - revealed.length);
+    for (let i = 0; i < hidden; i++) cards += `<span class="card-chip hidden">Hidden</span>`;
+    for (const c of revealed) cards += `<span class="card-chip revealed">${ROLE_EMOJI[c]||''} ${c} ✗</span>`;
+  }
+
+  return `
+    <div class="${cls}">
+      <div class="pc-header">
+        <span class="pc-name">${p.name}</span>
+        ${isSelf   ? '<span class="pc-you-tag">You</span>'   : ''}
+        ${isCurrent? '<span class="pc-turn-tag">⚡ Turn</span>' : ''}
+        <span class="pc-coins">⚜ ${p.coins ?? '—'}</span>
+      </div>
+      <div class="cards-row">${cards}</div>
+    </div>`;
+}
+
+function renderDebugSection(data) {
+  const players = data?.players || [];
+  if (!players.length) return '';
+  let html = `<div class="debug-section"><div class="debug-title">🔍 Debug — All Cards</div><div class="players-stack">`;
+  for (const p of players) {
+    // Debug DTO may use 'cards', 'playingCards', or 'influence' — try all, pick whichever is non-empty
+    const rawAll = (p.playingCards?.length ? p.playingCards : null)
+                || (p.cards?.length        ? p.cards        : null)
+                || p.influence || [];
+    const rawRev = p.revealedCards || [];
+
+    const toType = c => (typeof c === 'string' ? c : (c?.type ?? JSON.stringify(c)));
+
+    const allCards = rawAll.map(c => {
+      const t = toType(c);
+      return `<span class="card-chip ${t}">${ROLE_EMOJI[t]||''} ${t}</span>`;
+    }).join('') || `<span style="color:var(--muted);font-style:italic;font-size:11px;">no cards</span>`;
+
+    const revCards = rawRev.map(c => {
+      const t = toType(c);
+      return `<span class="card-chip revealed">${ROLE_EMOJI[t]||''} ${t} ✗</span>`;
+    }).join('');
+
+    html += `
+      <div class="player-card">
+        <div class="pc-header">
+          <span class="pc-name">${p.name}</span>
+          <span class="pc-coins">⚜ ${p.coins??'—'}</span>
+        </div>
+        <div class="cards-row">${allCards}${revCards}</div>
+      </div>`;
+  }
+  html += `</div></div>`;
+
+  // Raw JSON peek — shows actual field names from backend
+  html += `<details style="margin-top:8px;">
+    <summary style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.25em;color:var(--gold-dim);cursor:pointer;text-transform:uppercase;list-style:none;">▶ Raw Debug JSON</summary>
+    <pre style="margin-top:8px;padding:10px;background:#0a0807;border:1px solid var(--border);color:var(--muted);font-size:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;">${JSON.stringify(data, null, 2)}</pre>
+  </details>`;
+
+  return html;
+}
+
+// ─────────────────────────────── PLAYER-AWARE ACTIONS ─
+function excCardBtn(playerName, c, kept) {
+  return `<button class="exc-card-btn ${kept?'keep':'return'}" id="exc-${playerName}-${c.id}" onclick="toggleExc('${playerName}','${c.id}')">`
+       + `<span>${ROLE_EMOJI[c.type]||'🃏'}</span>`
+       + `<span>${c.type}</span>`
+       + `<span class="exc-status">${kept?'✓ Keep':'✗ Return'}</span>`
+       + `</button>`;
+}
+
+function buildTargetPicker(playerName, action, otherPlayers) {
+  if (!otherPlayers.length) return `<div class="target-picker"><div style="color:var(--muted);font-size:12px;font-style:italic;">No targets available.</div></div>`;
+  let html = `<div class="target-picker"><div class="target-picker-lbl">Select Target</div>`;
+  for (const p of otherPlayers) {
+    html += `<button class="target-btn" onclick="submitMove('${playerName}',{choice:'${action}',target:'${p.name}'})">${p.name} — ⚜ ${p.coins??'?'}</button>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function clickAction(playerName, action) {
+  const slot = A.myPlayers.find(s => s.name === playerName); if (!slot) return;
+  if (NEEDS_TARGET.has(action)) {
+    slot.pendingAction = slot.pendingAction === action ? null : action;
+    // Re-render just this column (toggle target picker visibility)
+    const col = ge(`pcol-${playerName}`); if (col) renderPlayerCol(col, slot);
+  } else {
+    submitMove(playerName, { choice: action });
+  }
+}
+
+function clickReveal(playerName, card) {
+  submitMove(playerName, { choice:'REVEAL', revealCard: card });
+}
+
+function toggleExc(playerName, cardId) {
+  const slot = A.myPlayers.find(s => s.name === playerName); if (!slot) return;
+  if (slot.excKeep.has(cardId)) {
+    slot.excKeep.delete(cardId);
+  } else {
+    if (slot.excKeep.size >= slot.excCount) {
+      const first = slot.excKeep.values().next().value;
+      slot.excKeep.delete(first);
+    }
+    slot.excKeep.add(cardId);
+  }
+  // Update UI without full re-render
+  slot.excPool.forEach(c => {
+    const btn = ge(`exc-${playerName}-${c.id}`); if (!btn) return;
+    const k = slot.excKeep.has(c.id);
+    btn.className = `exc-card-btn ${k?'keep':'return'}`;
+    btn.querySelector('.exc-status').textContent = k ? '✓ Keep' : '✗ Return';
+  });
+  const counter = ge(`keep-n-${playerName}`);
+  if (counter) counter.textContent = slot.excKeep.size;
+  const submit = ge(`exc-submit-${playerName}`);
+  if (submit) submit.disabled = slot.excKeep.size !== slot.excCount;
+}
+
+function submitExchange(playerName) {
+  const slot = A.myPlayers.find(s => s.name === playerName); if (!slot) return;
+  const drawnCards   = slot.excDrawn.map(c => ({ type:c.type, id:c.id }));
+  const returnedCards = slot.excPool.filter(c => !slot.excKeep.has(c.id)).map(c => ({ type:c.type, id:c.id }));
+  submitMove(playerName, { choice:'SWAP_CARDS', drawnCards, returnedCards });
+}
+
+// ─────────────────────────────── SUBMIT ─────────
+async function submitMove(playerName, { choice, target=null, drawnCards=null, returnedCards=null, revealCard=null }) {
+  const slot = A.myPlayers.find(s => s.name === playerName); if (!slot) return;
+  const body = { playerName, choice, target, drawnCards, returnedCards, revealCard };
+  const label = `[${playerName}] ${target ? `${choice} → ${target}` : choice}`;
+  addLog(`→ ${label}`, 'info');
+  try {
+    await call('POST', `/api/${A.roomId}/move`, body);
+    addLog(`✓ ${label}`, 'success');
+    // Clear this slot's pending state
+    slot.pendingAction = null;
+    slot.excKeep.clear(); slot.excPool = []; slot.excDrawn = []; slot.excCount = 0;
+    await fetchAllStates();
+  } catch(e) {
+    addLog(`✗ ${label}: ${e.message}`, 'error');
+  }
+}
+
+// ─────────────────────────────── KEYBOARD ───────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && A.screen === 'setup') {
+    ge('inp-room').value.trim() ? doJoin() : doCreate();
+  }
+  if (e.key === 'Enter' && A.screen === 'lobby') {
+    if (document.activeElement === ge('inp-extra')) addTestPlayer();
+  }
+  if (e.key === 'r' && e.altKey && A.screen === 'game') fetchAllStates();
+});
+
+// ─────────────────────────────── INIT ───────────
+showScreen('setup');
+</script>
+</body>
+</html>

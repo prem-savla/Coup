@@ -2,7 +2,6 @@ package com.game.coup.controller;
 
 import com.game.coup.dto.debug.GameDebugResponse;
 import com.game.coup.dto.request.GameMoveRequest;
-import com.game.coup.dto.request.GameStateRequest;
 import com.game.coup.dto.response.gamestate.GameStateResponse;
 import com.game.coup.service.GameService;
 
@@ -11,18 +10,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class GameController {
 
     private final GameService gameService;
 
-    @GetMapping("/{roomId}/state")
+    @GetMapping("/{roomId}/state/{playerName}")
     public GameStateResponse getGameState(
             @PathVariable String roomId,
-            @Valid @RequestBody GameStateRequest request
+            @PathVariable  String playerName
     ) {
-        return gameService.getGameState(roomId, request);
+        return gameService.getGameState(roomId, playerName);
     }
 
     @PostMapping("/{roomId}/move")

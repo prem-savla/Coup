@@ -1,5 +1,6 @@
 package com.game.coup.dto.response.gamestate.option;
 
+import io.micrometer.common.lang.NonNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +9,7 @@ import lombok.Getter;
 public class PlayerOptions {
 
     private final ActionOption actions;
-    private final ResponseOption responses;
+    private final @NonNull ResponseOption responses;
     private final RevealOption reveal;
     private final ExchangeOption exchange;
 
