@@ -202,8 +202,6 @@ During an Ambassador exchange, the player receives drawn cards from the deck, se
 }
 ```
 
-> **How exchange works:** The `cardsKept` field contains the cards drawn from the deck (shown in `playerOptions.exchange.drawnCards`). The `cardsReturned` field contains the cards the player wants to give back — selecting from the combined pool of drawn + playing cards. The cards kept are whatever is not returned.
-
 ---
 
 ## 🏗 Architecture
