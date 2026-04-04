@@ -92,6 +92,7 @@ public class GameStateResolver {
 
     public PlayerOptions getPlayerOptions(Game game, Player viewer) {
         GamePhase phase = game.getGamePhase();
+        if(!viewer.isAlive()) return PlayerOptions.blankOption();
 
         switch (phase) {
 
@@ -101,11 +102,13 @@ public class GameStateResolver {
                 PlayerOptions.blankOption();
 
             case CHALLENGE_WINDOW:
+                if(game.getRespondedPlayers().contains(viewer)) return PlayerOptions.blankOption();
                 return viewer.equals(game.getTurnContext().getActor())?
                 PlayerOptions.blankOption():
                 PlayerOptions.forResponses(buildChallengeResponses());
 
             case BLOCK_WINDOW:{
+                    if(game.getRespondedPlayers().contains(viewer)) return PlayerOptions.blankOption();
                     TurnContext ctx = game.getTurnContext();
                     ActionType action = ctx.getAction();
                     Player target = ctx.getTarget();
@@ -124,6 +127,7 @@ public class GameStateResolver {
                 }
                 
             case BLOCK_CHALLENGE_WINDOW:
+                if(game.getRespondedPlayers().contains(viewer)) return PlayerOptions.blankOption();
                 return viewer.equals(game.getTurnContext().getBlocker())?
                 PlayerOptions.blankOption():
                 PlayerOptions.forResponses(buildBlockChallengeResponses());

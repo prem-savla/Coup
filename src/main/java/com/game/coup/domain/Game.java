@@ -74,6 +74,8 @@ public class Game {
 
     public Player getCurrentPlayer() {return players.get(currentTurnIndex);}
 
+    public HashSet<Player> getRespondedPlayers(){return respondedPlayers;}
+
     public Player getPlayerByName(String name) {
         return players.stream()
                 .filter(p -> p.getName().equals(name))
@@ -128,7 +130,7 @@ public class Game {
     public void noChallengeAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
         respondedPlayers.add(responder);
-        if(respondedPlayers.size() == players.size()-1)set2GamePhase();
+        if(respondedPlayers.size() == getAlivePlayers().size()-1)set2GamePhase();
     }
 
     // --- Block ---
@@ -144,7 +146,7 @@ public class Game {
         ActionType action = ctx.getAction();
         if(action.equals(ActionType.FOREIGN_AID)){
             respondedPlayers.add(responder);
-            if(respondedPlayers.size() == players.size()-1)setGamePhase(GamePhase.RESOLVE);
+            if(respondedPlayers.size() == getAlivePlayers().size()-1)setGamePhase(GamePhase.RESOLVE);
         }else{
             setGamePhase(GamePhase.RESOLVE);
         }
@@ -163,7 +165,7 @@ public class Game {
     public void noChallengeBlockAction(@NonNull Player responder){
         if(gamePhase!=GamePhase.BLOCK_CHALLENGE_WINDOW) throw new IllegalStateException(gamePhase.toString());
         respondedPlayers.add(responder);
-        if(respondedPlayers.size() == players.size()-1)setGamePhase(GamePhase.RESOLVE);
+        if(respondedPlayers.size() == getAlivePlayers().size()-1)setGamePhase(GamePhase.RESOLVE);
     }
 
     // --- Reveal ---
