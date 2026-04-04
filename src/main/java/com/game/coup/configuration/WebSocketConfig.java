@@ -14,14 +14,29 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(@NonNull MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");       // server → client
-        config.setApplicationDestinationPrefixes("/app"); // client → server
+        config.enableSimpleBroker("/topic", "/queue");
+        //  later you'll use these like:
+        //  /topic/game/room123        → broadcast to all players in room
+        //  /queue/game/room123/Alice  → send only to Alice
+        
+        config.setApplicationDestinationPrefixes("/app");
+        //  later your controller will have:
+        //  @MessageMapping("/move")   → client sends to /app/move
+        //  @MessageMapping("/state")  → client sends to /app/state
     }
 
     @Override
     public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")
-                .withSockJS();
+        // The URL all players connect to — same for everyone
+
+        .setAllowedOriginPatterns("*")
+        // Which domains are allowed to connect
+        // "*" = any frontend (localhost, your game website, etc.)
+
+        .withSockJS();
+        // If a player's browser doesn't support WebSocket
+        // SockJS automatically falls back to HTTP polling
+        // Player still works — they just don't know the difference
     }
 }
