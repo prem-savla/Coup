@@ -90,6 +90,10 @@ public class Game {
                 .toList();
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     // --- Context mgm ---
 
     private void createContext(@NonNull Player actor,@NonNull ActionType action,@NonNull Player target) {
