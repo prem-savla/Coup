@@ -468,7 +468,14 @@ body {
 }
 .player-card.is-current { border-color: var(--gold-dim); }
 .player-card.is-self    { border-left: 2px solid var(--crimson-bright); }
-.player-card.is-elim    { opacity: .38; }
+
+.pc-elim-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 7px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  padding: 1px 0;
+}
 
 .pc-header {
   display: flex;
@@ -1072,6 +1079,13 @@ async function fetchAllStates() {
   const viewState = viewSlot?.lastState || anyState;
   if (viewState) renderState(viewState);
   renderAllPlayerCols();
+
+  // Stop polling once the game is over
+  if (anyState?.gameState?.phase === 'GAME_OVER') {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+    addLog('Game over — polling stopped.', 'info');
+  }
 }
 
 function switchStateView(playerName) {
@@ -1103,12 +1117,16 @@ function renderPlayerCol(col, slot) {
   const ps   = d?.playersState;
   const self = ps?.self;
   const cur  = gs?.currentPlayer;
-  const isTurn = cur === slot.name;
+  const phase = gs?.phase;
+  const isGameOver = phase === 'GAME_OVER';
+  const isAlive = typeof self?.alive === 'boolean' ? self.alive : true;
+  const isTurn = cur === slot.name && !isGameOver;
 
   let html = `
     <div class="player-col-header">
       <span class="player-col-name">${slot.name}</span>
       ${isTurn ? `<span class="player-col-badge" style="background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold);">⚡ TURN</span>` : ''}
+      ${!isAlive ? `<span class="player-col-badge" style="background:rgba(40,32,22,.4);border-color:var(--muted);color:var(--muted);">✗ ELIMINATED</span>` : ''}
     </div>`;
 
   // Mini self-state: coins + cards
@@ -1124,9 +1142,8 @@ function renderPlayerCol(col, slot) {
   }
 
   // Winner
-  const winner = gs?.winner;
-  if (winner && winner !== '__NONE__') {
-    html += `<div class="opts-status">🏆 <strong>${winner}</strong> wins!</div>`;
+  if (isGameOver) {
+    html += `<div class="opts-status">🏆 <strong>${cur}</strong> wins! Game over.</div>`;
     col.innerHTML = html; return;
   }
 
@@ -1139,7 +1156,7 @@ function renderPlayerCol(col, slot) {
     col.innerHTML = html; return;
   }
 
-  const otherPlayers = ps?.otherPlayers || [];
+  const allOtherPlayers = ps?.otherPlayers || [];
 
   // ACTIONS
   if (opts.actions) {
@@ -1147,6 +1164,10 @@ function renderPlayerCol(col, slot) {
       ...(opts.actions.validNonTargetedActions || []),
       ...(opts.actions.validTargetedActions    || []),
     ];
+    // validTargets is a list of names from the backend options
+    const validTargetNames = new Set(opts.actions.validTargets || []);
+    const validTargetPlayers = allOtherPlayers.filter(p => validTargetNames.has(p.name));
+
     html += `<div class="sect"><div class="sect-title">Actions</div>`;
     for (const act of actions) {
       const m = ACTION_META[act] || { label:act, desc:'', icon:'•' };
@@ -1158,7 +1179,7 @@ function renderPlayerCol(col, slot) {
             + `<span class="act-desc">${m.desc}</span>`
             + `</button>`;
       if (NEEDS_TARGET.has(act)) {
-        html += `<div id="tpick-${slot.name}-${act}" style="display:${sel?'block':'none'}">` + buildTargetPicker(slot.name, act, otherPlayers) + `</div>`;
+        html += `<div id="tpick-${slot.name}-${act}" style="display:${sel?'block':'none'}">` + buildTargetPicker(slot.name, act, validTargetPlayers) + `</div>`;
       }
     }
     html += `</div>`;
@@ -1245,43 +1266,43 @@ function renderState(d) {
     html += `</div>`;
   }
 
-  // Winner
-  const winner = gs?.winner;
-  if (winner && winner !== '__NONE__') {
-    html += `
-      <div class="winner-banner">
-        <div class="winner-name">🏆 ${winner}</div>
-        <div class="winner-sub">Claims Power — Game Over</div>
-      </div>`;
-  }
-
-  // Phase
   const phase  = gs?.phase || '—';
   const curPly = gs?.currentPlayer || '—';
-  html += `
-    <div class="phase-banner">
-      <span class="phase-chip">${phase}</span>
-      <span class="phase-detail">Current turn: <strong>${curPly}</strong></span>
-    </div>`;
 
-  // Context grid — show only non-NONE fields
-  const ctxFields = [
-    { l:'Actor',           v: gs?.actor },
-    { l:'Action',          v: gs?.action },
-    { l:'Target',          v: gs?.target },
-    { l:'Challenger',      v: gs?.challenger },
-    { l:'Blocker',         v: gs?.blocker },
-    { l:'Block Challenger',v: gs?.blockChallenger },
-  ].filter(f => f.v && f.v !== '__NONE__');
+  // GAME_OVER: currentPlayer is the winner — show dedicated banner, skip turn/context
+  if (phase === 'GAME_OVER') {
+    html += `
+      <div class="winner-banner">
+        <div class="winner-name">🏆 ${curPly}</div>
+        <div class="winner-sub">Claims Power — Game Over</div>
+      </div>`;
+  } else {
+    // Phase / turn banner
+    html += `
+      <div class="phase-banner">
+        <span class="phase-chip">${phase}</span>
+        <span class="phase-detail">Current turn: <strong>${curPly}</strong></span>
+      </div>`;
 
-  if (ctxFields.length) {
-    html += `<div class="ctx-grid">`;
-    html += ctxFields.map(f => `
-      <div class="ctx-item">
-        <div class="ctx-lbl">${f.l}</div>
-        <div class="ctx-val">${f.v}</div>
-      </div>`).join('');
-    html += `</div>`;
+    // Context grid — show only non-NONE fields
+    const ctxFields = [
+      { l:'Actor',           v: gs?.actor },
+      { l:'Action',          v: gs?.action },
+      { l:'Target',          v: gs?.target },
+      { l:'Challenger',      v: gs?.challenger },
+      { l:'Blocker',         v: gs?.blocker },
+      { l:'Block Challenger',v: gs?.blockChallenger },
+    ].filter(f => f.v && f.v !== '__NONE__');
+
+    if (ctxFields.length) {
+      html += `<div class="ctx-grid">`;
+      html += ctxFields.map(f => `
+        <div class="ctx-item">
+          <div class="ctx-lbl">${f.l}</div>
+          <div class="ctx-val">${f.v}</div>
+        </div>`).join('');
+      html += `</div>`;
+    }
   }
 
   // Players
@@ -1291,8 +1312,11 @@ function renderState(d) {
   const self   = ps?.self;
   const others = ps?.otherPlayers || [];
 
-  if (self) html += playerCardHTML(self, true, self.name === curPly);
-  for (const p of others) html += playerCardHTML(p, false, p.name === curPly);
+  // In GAME_OVER don't highlight any turn — pass null for curPly so no ⚡ Turn tag shows
+  const activeTurnPlayer = phase === 'GAME_OVER' ? null : curPly;
+
+  if (self) html += playerCardHTML(self, true, self.name === activeTurnPlayer);
+  for (const p of others) html += playerCardHTML(p, false, p.name === activeTurnPlayer);
 
   html += `</div>`;
 
@@ -1302,7 +1326,10 @@ function renderState(d) {
 function playerCardHTML(p, isSelf, isCurrent) {
   const playing  = p.playingCards  || [];
   const revealed = p.revealedCards || [];
-  const isElim   = isSelf ? (playing.length === 0 && revealed.length > 0) : (revealed.length >= 2);
+  // Prefer the authoritative alive boolean from the server
+  const isElim = typeof p.alive === 'boolean'
+    ? !p.alive
+    : isSelf ? (playing.length === 0 && revealed.length > 0) : (revealed.length >= 2);
   const cls = ['player-card', isSelf?'is-self':'', isCurrent?'is-current':'', isElim?'is-elim':''].filter(Boolean).join(' ');
 
   let cards = '';
@@ -1322,6 +1349,7 @@ function playerCardHTML(p, isSelf, isCurrent) {
         <span class="pc-name">${p.name}</span>
         ${isSelf   ? '<span class="pc-you-tag">You</span>'   : ''}
         ${isCurrent? '<span class="pc-turn-tag">⚡ Turn</span>' : ''}
+        ${isElim   ? '<span class="pc-elim-tag">eliminated</span>' : ''}
         <span class="pc-coins">⚜ ${p.coins ?? '—'}</span>
       </div>
       <div class="cards-row">${cards}</div>
