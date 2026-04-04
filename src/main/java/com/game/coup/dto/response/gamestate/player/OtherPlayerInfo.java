@@ -15,6 +15,8 @@ public class OtherPlayerInfo {
 
     private final int coins;
 
+    private final boolean alive;
+
     @NonNull
     private final List<String> revealedCards;
 }

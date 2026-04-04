@@ -15,6 +15,8 @@ public class PlayerInfo {
 
     private final int coins;
 
+    private final boolean alive;
+
     @NonNull
     private final List<String> playingCards;
 

@@ -41,7 +41,7 @@ public class GameStateResolver {
     }
     
     private GameState getGameState(Game game){
-        if(game.getGamePhase() == GamePhase.IDLE){
+        if(game.getGamePhase() == GamePhase.IDLE || game.getGamePhase() == GamePhase.GAME_OVER){
             GameState state = GameState.builder()
             .currentPlayer(game.getCurrentPlayer().getName())
             .phase(game.getGamePhase())
@@ -66,17 +66,19 @@ public class GameStateResolver {
         PlayerInfo self = PlayerInfo.builder()
         .name(viewer.getName())
         .coins(viewer.getCoins())
+        .alive(viewer.isAlive())
         .playingCards(getCardsView(viewer.getPlayingCards()))
         .revealedCards(getCardsView(viewer.getRevealedCards()))
         .build();
 
         List<OtherPlayerInfo> otherPlayers = new ArrayList<>();
 
-        for(Player player : game.getAlivePlayers()){
+        for(Player player : game.getPlayers()){ 
             if(!player.equals(viewer)){
                 OtherPlayerInfo other = OtherPlayerInfo.builder()
                 .name(player.getName())
                 .coins(player.getCoins())
+                .alive(player.isAlive())
                 .revealedCards(getCardsView(player.getRevealedCards()))
                 .build();
             otherPlayers.add(other);
