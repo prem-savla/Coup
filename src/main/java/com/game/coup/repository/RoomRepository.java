@@ -32,6 +32,11 @@ public class RoomRepository {
         return room;
     }
 
+    public boolean isRoomActive(String roomId) {
+        if (roomId == null) return false;
+        return rooms.containsKey(roomId);
+    }
+
     public void removeRoom(String roomId) {
         if (rooms.remove(roomId) == null) {
             throw new IllegalArgumentException("Room not found: " + roomId);

@@ -29,5 +29,14 @@ public class RoomService {
         Room room = repository.getRoom(roomId);
         room.markStarted(owner);
     }
+
+    public boolean isRoomActive(String roomId) {
+        return repository.isRoomActive(roomId);
+    }
+
+    public void removeRoom(String roomId) {
+        repository.removeRoom(roomId);
+    }
+
     
 }
