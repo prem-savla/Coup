@@ -77,7 +77,7 @@ public class RoomController {
             case START -> {
                 if (request.getRoomId() == null || request.getRoomId().isBlank()) {
                     return ResponseEntity.badRequest()
-                            .body("roomId is required for START action."); // Fixed typo in error message
+                            .body("roomId is required for START action."); 
                 }
 
                 roomService.startGame(request.getRoomId(), request.getPlayerName());
